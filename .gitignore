@@ -4,3 +4,11 @@
 *.jar
 *.war
 *.ear
+
+# vaadin compiled files and folders#
+*/src/main/webapp/VAADIN/themes/*/styles.css
+*/src/main/webapp/VAADIN/gwt-unitCache/
+*/src/main/webapp/VAADIN/widgetsets/
+target
+
+
