@@ -5,7 +5,8 @@
 * Run in debug mode
 * code billing function
 
-Vaadin application creation using 'application' archetype (includes custom widget):
+####Commands:
+* Vaadin application creation using 'application' archetype (includes custom widget):
 ```
 mvn archetype:generate \
    -DarchetypeGroupId=com.vaadin \
@@ -17,15 +18,14 @@ mvn archetype:generate \
    -Dpackaging=war
 ```
 
-Creating war and custom widgetset:
+* Creating war and custom widgetset:
 ```
 mvn package
 ```
 
-Running the app using embedded jetty server:
+* Running the app using embedded jetty server:
 ```
 mvn jetty:run
-
 visit: http://localhost:8080/
 ```
 
