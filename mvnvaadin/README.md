@@ -1,3 +1,10 @@
+####Action Items:
+* Create vaadin project using archetype
+* Import to eclipse
+* Run on server
+* Run in debug mode
+* code billing function
+
 Vaadin application creation using 'application' archetype (includes custom widget):
 ```
 mvn archetype:generate \
