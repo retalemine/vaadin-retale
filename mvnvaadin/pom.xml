@@ -161,10 +161,34 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-			</plugin>
+	      	<plugin>
+	        	<groupId>org.eclipse.jetty</groupId>
+	        	<artifactId>jetty-maven-plugin</artifactId>
+	        	<version>9.0.7.v20131107</version>
+	        	<configuration>
+	          		<stopKey>STOP</stopKey>
+	          		<stopPort>9999</stopPort>
+	          		<scanIntervalSeconds>5</scanIntervalSeconds>
+	          		<!-- 
+	          		<scanTargets>
+          				<scanTarget>${basedir}/src/main/java</scanTarget>
+        			</scanTargets>
+        			-->
+        			<!-- 
+        			<scanTargetPatterns>
+          				<scanTargetPattern>
+            				<directory>${basedir}/src/main/java</directory>
+            				<includes>
+              					<include>**/*.java</include>
+            				</includes>
+            				<excludes>
+              					<exclude>**/original.java</exclude>
+            				</excludes>
+          				</scanTargetPattern>
+        			</scanTargetPatterns>
+        			-->	          		
+	        	</configuration>
+	      	</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
