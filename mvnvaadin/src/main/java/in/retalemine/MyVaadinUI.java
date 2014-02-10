@@ -30,8 +30,7 @@ public class MyVaadinUI extends UI
     @Override
     protected void init(VaadinRequest request) {
         VerticalSplitPanel verSplitPanel = new VerticalSplitPanel();
-        setContent(verSplitPanel);
-        
+    	setContent(verSplitPanel);
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         /*Button button = new Button("Click Me");
@@ -121,9 +120,11 @@ public class MyVaadinUI extends UI
         
         verSplitPanel.addComponent(layout);
 
-        Label console = new Label();
-        console.setValue("MongoDB collections: "+new MyMongoDB().printCollections());
-        verSplitPanel.addComponent(console);
+        //Label console = new Label();
+        //console.setValue("MongoDB collections: "+new MyMongoDB().printCollections());
+        //verSplitPanel.addComponent(console);
+        
+        verSplitPanel.addComponent(new BillingComponent());
         
     }
 
