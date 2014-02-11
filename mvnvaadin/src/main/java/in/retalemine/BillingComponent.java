@@ -154,10 +154,15 @@ public class BillingComponent extends CustomComponent {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				final Object[] productInfo = new Object[5];
+
+				if (!isValidateAddToCart()) {
+					return;
+				}
+
 				productInfo[0] = billableItems.size() + 1;
 				productInfo[1] = productNameCB.getValue();
 				productInfo[2] = productPriceCB.getValue();
-				productInfo[3] = qty.getValue();
+				productInfo[3] = qty.getValue()+" "+qtySuffixCB.getValue();
 				productInfo[4] = (Double) productPriceCB.getValue()
 						* Double.parseDouble(qty.getValue());
 				billableItems.addItem(productInfo, billableItems.size());
@@ -168,6 +173,16 @@ public class BillingComponent extends CustomComponent {
 								.getColumnFooter("Net Price"))
 								+ (Double) productInfo[4]));
 				resetAddToCart();
+			}
+
+			private Boolean isValidateAddToCart() {
+				if (null == productNameCB.getValue()
+						|| null == productPriceCB.getValue() || null == qty
+						|| "".equals(qty.getValue().trim())
+						|| null == qtySuffixCB.getValue()) {
+					return false;
+				}
+				return true;
 			}
 
 			private void resetAddToCart() {
