@@ -14,8 +14,10 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -44,8 +46,33 @@ public class BillingComponent extends CustomComponent {
 		mainLayout.addComponent(buildBillingHeader());
 		mainLayout.addComponent(buildAddToCart());
 		mainLayout.addComponent(buildBillingTable());
+		mainLayout.addComponent(buildBillingFooter());
 		
 		return mainLayout;
+	}
+
+	private Component buildBillingFooter() {
+		GridLayout footerGrid = new GridLayout(2, 1);
+
+		footerGrid.setImmediate(false);
+		footerGrid.setWidth("100%");
+		footerGrid.setMargin(false);
+		footerGrid.setSpacing(true);
+
+		footerGrid.addComponent(buildCustomerProfile(), 1, 1);
+		footerGrid.addComponent(buildBillingPayments(), 2, 1);
+
+		return footerGrid;
+	}
+
+	private Component buildBillingPayments() {
+		Table payments = new Table("Payments");
+		return payments;
+	}
+
+	private Component buildCustomerProfile() {
+		Panel customerPanel = new Panel("Customer details");
+		return customerPanel;
 	}
 
 	private Component buildBillingTable() {
@@ -58,9 +85,9 @@ public class BillingComponent extends CustomComponent {
 		billableItems.addContainerProperty("Amount", Double.class, 0.0);
 		billableItems.setPageLength(5);
 		billableItems.setWidth("100%");
-		billableItems.setFooterVisible(true);
+		/*billableItems.setFooterVisible(true);
 		billableItems.setColumnFooter("Quantity", "Sub Total");
-		billableItems.setColumnFooter("Amount", "0.0");
+		billableItems.setColumnFooter("Amount", "0.0");*/
 
 		billingLayout.setImmediate(false);
 		billingLayout.setWidth("100%");
@@ -168,10 +195,10 @@ public class BillingComponent extends CustomComponent {
 				billableItems.addItem(productInfo, billableItems.size());
 				billableItems.setCurrentPageFirstItemId(billableItems.size()
 						- billableItems.getPageLength());
-				billableItems.setColumnFooter("Net Price", String
+				/*billableItems.setColumnFooter("Net Price", String
 						.valueOf(Double.parseDouble(billableItems
 								.getColumnFooter("Net Price"))
-								+ (Double) productInfo[4]));
+								+ (Double) productInfo[4]));*/
 				resetAddToCart();
 			}
 
