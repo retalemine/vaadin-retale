@@ -51,16 +51,16 @@ public class BillingComponent extends CustomComponent {
 	private Component buildBillingTable() {
 		VerticalLayout billingLayout = new VerticalLayout();
 
-		billableItems.addContainerProperty("SNo#", Integer.class, null);
+		billableItems.addContainerProperty("No.", Integer.class, null);
 		billableItems.addContainerProperty("Product Description", String.class, "");
-		billableItems.addContainerProperty("Unit Price", Double.class, 0.0);
+		billableItems.addContainerProperty("Unit Rate", Double.class, 0.0);
 		billableItems.addContainerProperty("Quantity", String.class, "1");
-		billableItems.addContainerProperty("Net Price", Double.class, 0.0);
+		billableItems.addContainerProperty("Amount", Double.class, 0.0);
 		billableItems.setPageLength(5);
 		billableItems.setWidth("100%");
 		billableItems.setFooterVisible(true);
-		billableItems.setColumnFooter("Quantity", "Net Price");
-		billableItems.setColumnFooter("Net Price", "0.0");
+		billableItems.setColumnFooter("Quantity", "Sub Total");
+		billableItems.setColumnFooter("Amount", "0.0");
 
 		billingLayout.setImmediate(false);
 		billingLayout.setWidth("100%");
@@ -77,7 +77,7 @@ public class BillingComponent extends CustomComponent {
 		HorizontalLayout addToCartLayout = new HorizontalLayout();
 		final ComboBox productNameCB = new ComboBox("Product List",Arrays.
 				asList(new String[] { "Lux Sandal", "Hamam","Cinthol Old" }));
-		final ComboBox productPriceCB = new ComboBox("Price List",
+		final ComboBox productPriceCB = new ComboBox("Rate List",
 				Arrays.asList(new Double[] { 10.0, 20.0, 30.0, 40.0, 50.0 }));
 		final TextField qty = new TextField("Quantity");
 		final ComboBox qtySuffixCB = new ComboBox("Qty Suffix List",
@@ -113,7 +113,7 @@ public class BillingComponent extends CustomComponent {
 			}
 		});
 
-		productPriceCB.setInputPrompt("Select price");
+		productPriceCB.setInputPrompt("Select rate");
 		productPriceCB.setFilteringMode(FilteringMode.STARTSWITH);
 		productPriceCB.setImmediate(true);
 		productPriceCB.setRequired(true);
