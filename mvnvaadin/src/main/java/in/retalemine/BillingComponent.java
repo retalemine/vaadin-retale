@@ -19,6 +19,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.Table.Align;
+import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -52,26 +54,141 @@ public class BillingComponent extends CustomComponent {
 	}
 
 	private Component buildBillingFooter() {
-		GridLayout footerGrid = new GridLayout(2, 1);
+		GridLayout footerGrid = new GridLayout(3, 1);
 
 		footerGrid.setImmediate(false);
 		footerGrid.setWidth("100%");
 		footerGrid.setMargin(false);
 		footerGrid.setSpacing(true);
 
-		footerGrid.addComponent(buildCustomerProfile(), 1, 1);
-		footerGrid.addComponent(buildBillingPayments(), 2, 1);
+		footerGrid.addComponent(buildCustomerProfile(), 0, 0, 1, 0);
+		footerGrid.addComponent(buildBillingPayments(), 2, 0);
 
 		return footerGrid;
 	}
 
 	private Component buildBillingPayments() {
-		Table payments = new Table("Payments");
-		return payments;
+		VerticalLayout paymentLayout = new VerticalLayout();
+		HorizontalLayout subTotalLayout = new HorizontalLayout();
+		HorizontalLayout totalLayout = new HorizontalLayout();
+		Label subTotal = new Label();
+		Label subTotalValue = new Label();
+		Label subTotalColon = new Label();
+		Label total = new Label();
+		Label totalValue = new Label();
+		Label totalColon = new Label();
+
+		subTotal.setValue("SubTotal");
+
+		subTotalValue.setValue("0.0");
+		subTotalValue.setStyleName("v-align-right");
+
+		subTotalColon.setValue(":");
+		subTotalColon.setStyleName("v-align-right");
+
+		total.setValue("Total");
+
+		totalValue.setValue("0.0");
+		totalValue.setStyleName("v-align-right");
+
+		totalColon.setValue(":");
+		totalColon.setStyleName("v-align-right");
+
+		paymentLayout.addComponent(subTotalLayout);
+		paymentLayout.addComponent(totalLayout);
+
+		subTotalLayout.addComponent(subTotal);
+		subTotalLayout.addComponent(subTotalColon);
+		subTotalLayout.addComponent(subTotalValue);
+
+		totalLayout.addComponent(total);
+		totalLayout.addComponent(totalColon);
+		totalLayout.addComponent(totalValue);
+
+		subTotalLayout.setComponentAlignment(subTotal, Alignment.BOTTOM_LEFT);
+		subTotalLayout.setComponentAlignment(subTotalColon,
+				Alignment.BOTTOM_CENTER);
+		subTotalLayout.setComponentAlignment(subTotalValue,
+				Alignment.BOTTOM_RIGHT);
+		subTotalLayout.setImmediate(false);
+		subTotalLayout.setWidth("100%");
+		subTotalLayout.setMargin(false);
+		subTotalLayout.setSpacing(true);
+
+		totalLayout.setComponentAlignment(total, Alignment.BOTTOM_LEFT);
+		totalLayout.setComponentAlignment(totalColon, Alignment.BOTTOM_CENTER);
+		totalLayout.setComponentAlignment(totalValue, Alignment.BOTTOM_RIGHT);
+		totalLayout.setImmediate(false);
+		totalLayout.setWidth("100%");
+		totalLayout.setMargin(false);
+		totalLayout.setSpacing(true);
+
+		paymentLayout.setImmediate(false);
+		paymentLayout.setWidth("100%");
+		paymentLayout.setMargin(true);
+		paymentLayout.setSpacing(true);
+
+		return paymentLayout;
+	}
+
+	private Component buildBillingPaymentsTable() {
+		VerticalLayout paymentLayout = new VerticalLayout();
+		Table subTotal = new Table();
+		Table taxable = new Table();
+		Table total = new Table();
+
+		subTotal.addContainerProperty("Type", String.class, "");
+		subTotal.addContainerProperty(":", String.class, "");
+		subTotal.addContainerProperty("Value", String.class, "");
+		subTotal.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
+		subTotal.addItem(new Object[] { "SubTotal", ":", "0.0" }, 1);
+		subTotal.setPageLength(1);
+		subTotal.setWidth("100%");
+		subTotal.setColumnAlignment("Value", Align.RIGHT);
+		subTotal.setColumnWidth(":", 4);
+		subTotal.setColumnWidth("Value", 100);
+
+		taxable.addContainerProperty("Type", String.class, "");
+		taxable.addContainerProperty(":", String.class, "");
+		taxable.addContainerProperty("Value", String.class, "");
+		taxable.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
+		taxable.addItem(new Object[] { "Tax", ":", "0.0" }, 1);
+		taxable.setPageLength(taxable.size());
+		taxable.setWidth("100%");
+		taxable.setColumnAlignment("Value", Align.RIGHT);
+		taxable.setColumnWidth(":", 4);
+		taxable.setColumnWidth("Value", 100);
+
+		total.addContainerProperty("Type", String.class, "");
+		total.addContainerProperty(":", String.class, "");
+		total.addContainerProperty("Value", String.class, "");
+		total.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
+		total.addItem(new Object[] { "Total", ":", "0.0" }, 1);
+		total.setPageLength(1);
+		total.setWidth("100%");
+		total.setColumnAlignment("Value", Align.RIGHT);
+		total.setColumnWidth(":", 4);
+		total.setColumnWidth("Value", 100);
+
+		paymentLayout.setImmediate(false);
+		paymentLayout.setWidth("100%");
+		paymentLayout.setMargin(false);
+		paymentLayout.setSpacing(false);
+
+		paymentLayout.addComponent(subTotal);
+		paymentLayout.addComponent(taxable);
+		paymentLayout.addComponent(total);
+
+		return paymentLayout;
 	}
 
 	private Component buildCustomerProfile() {
 		Panel customerPanel = new Panel("Customer details");
+
+		customerPanel.setImmediate(false);
+		customerPanel.setWidth("100%");
+		customerPanel.setHeight("100%");
+
 		return customerPanel;
 	}
 
@@ -85,6 +202,7 @@ public class BillingComponent extends CustomComponent {
 		billableItems.addContainerProperty("Amount", Double.class, 0.0);
 		billableItems.setPageLength(5);
 		billableItems.setWidth("100%");
+		billableItems.setColumnAlignment("Amount", Align.RIGHT);
 		/*billableItems.setFooterVisible(true);
 		billableItems.setColumnFooter("Quantity", "Sub Total");
 		billableItems.setColumnFooter("Amount", "0.0");*/
