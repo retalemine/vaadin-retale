@@ -203,6 +203,11 @@ public class BillingComponent extends CustomComponent {
 		billableItems.setPageLength(5);
 		billableItems.setWidth("100%");
 		billableItems.setColumnAlignment("Amount", Align.RIGHT);
+		billableItems.setColumnExpandRatio("No.", 1);
+		billableItems.setColumnExpandRatio("Product Description", 18);
+		billableItems.setColumnExpandRatio("Unit Rate", 4);
+		billableItems.setColumnExpandRatio("Quantity", 2);
+		billableItems.setColumnExpandRatio("Amount", 6);
 		/*billableItems.setFooterVisible(true);
 		billableItems.setColumnFooter("Quantity", "Sub Total");
 		billableItems.setColumnFooter("Amount", "0.0");*/
@@ -354,6 +359,12 @@ public class BillingComponent extends CustomComponent {
 		addToCartLayout.addComponent(qty);
 		addToCartLayout.addComponent(qtySuffixCB);
 		addToCartLayout.addComponent(addToCartBT);
+		
+		addToCartLayout.setExpandRatio(productNameCB, 4);
+		addToCartLayout.setExpandRatio(productPriceCB, 1.5f);
+		addToCartLayout.setExpandRatio(qty, 1f);
+		addToCartLayout.setExpandRatio(qtySuffixCB, 1f);
+		addToCartLayout.setExpandRatio(addToCartBT, 1.5f);
 
 		return addToCartLayout;
 	}
