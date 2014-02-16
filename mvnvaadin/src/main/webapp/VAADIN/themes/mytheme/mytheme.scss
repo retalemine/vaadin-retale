@@ -9,4 +9,12 @@
   @include reindeer;
 
   /* Insert your theme rules here */
+  .v-select-optiongroup .v-select-option {
+	display: inline-block;
+  }
+  
+  .v-select-optiongroup .v-select-option.v-radiobutton {
+	padding-right: 10px;
+  }
+  
 }
