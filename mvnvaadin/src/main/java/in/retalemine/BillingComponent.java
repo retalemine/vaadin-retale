@@ -103,18 +103,25 @@ public class BillingComponent extends CustomComponent {
 
 	private VerticalLayout buildMainLayout() {
 		mainLayout = new VerticalLayout();
+		Component billingTableComponent;
+
 		mainLayout.setImmediate(false);
 		mainLayout.setWidth("100%");
+		mainLayout.setHeight("100%");
 		mainLayout.setMargin(true);
 		mainLayout.setSpacing(true);
 
 		setWidth("100.0%");
 		setHeight("100.0%");
 
+		billingTableComponent = buildBillingTable();
+
 		mainLayout.addComponent(buildBillingHeader());
 		mainLayout.addComponent(buildAddToCart());
-		mainLayout.addComponent(buildBillingTable());
+		mainLayout.addComponent(billingTableComponent);
 		mainLayout.addComponent(buildBillingFooter());
+
+		mainLayout.setExpandRatio(billingTableComponent, 1);
 
 		return mainLayout;
 	}
@@ -281,7 +288,6 @@ public class BillingComponent extends CustomComponent {
 
 		customerPanel.setImmediate(false);
 		customerPanel.setWidth("100%");
-		customerPanel.setHeight("100%");
 
 		return customerPanel;
 	}
@@ -295,8 +301,7 @@ public class BillingComponent extends CustomComponent {
 		billableItemsTB.addContainerProperty(QUANTITY, String.class, "1");
 		billableItemsTB.addContainerProperty(AMOUNT, Double.class, 0.0);
 		billableItemsTB.setColumnAlignment("Amount", Align.RIGHT);
-		billableItemsTB.setPageLength(5);
-		billableItemsTB.setWidth("100%");
+		billableItemsTB.setSizeFull();
 		billableItemsTB.setColumnExpandRatio(SERIAL_NO, 1);
 		billableItemsTB.setColumnExpandRatio(PRODUCT_DESC, 18);
 		billableItemsTB.setColumnExpandRatio(UNIT_RATE, 4);
@@ -376,8 +381,7 @@ public class BillingComponent extends CustomComponent {
 				return new Action[] { actionDel };
 			}
 		});
-		billingPanel.setWidth("100%");
-		billingPanel.setHeight("100%");
+		billingPanel.setSizeFull();
 
 		billingPanel.setContent(billableItemsTB);
 
@@ -532,7 +536,6 @@ public class BillingComponent extends CustomComponent {
 
 		addToCartLayout.setImmediate(false);
 		addToCartLayout.setWidth("100%");
-		addToCartLayout.setHeight("100%");
 		addToCartLayout.setMargin(false);
 		addToCartLayout.setSpacing(true);
 
@@ -570,7 +573,6 @@ public class BillingComponent extends CustomComponent {
 
 		billingHeaderLayout.setImmediate(false);
 		billingHeaderLayout.setWidth("100%");
-		billingHeaderLayout.setHeight("100%");
 		billingHeaderLayout.setMargin(false);
 		billingHeaderLayout.setSpacing(false);
 		billNoLayout.setSpacing(true);
