@@ -37,6 +37,7 @@ import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Runo;
 
 public class BillingComponent extends CustomComponent {
 
@@ -157,6 +158,8 @@ public class BillingComponent extends CustomComponent {
 		HorizontalLayout subTotalLayout = new HorizontalLayout();
 		HorizontalLayout taxLayout = new HorizontalLayout();
 		HorizontalLayout totalLayout = new HorizontalLayout();
+		Panel paymentModeLayout = new Panel("Payment Mode");
+		HorizontalLayout deliveryBillMeLayout = new HorizontalLayout();
 		Label subTotalLB = new Label();
 		Label subTotalColonLB = new Label();
 		Label totalLB = new Label();
@@ -267,9 +270,8 @@ public class BillingComponent extends CustomComponent {
 		paymentLayout.addComponent(subTotalLayout);
 		paymentLayout.addComponent(taxLayout);
 		paymentLayout.addComponent(totalLayout);
-		paymentLayout.addComponent(payModeOG);
-		paymentLayout.addComponent(deliveryChB);
-		paymentLayout.addComponent(billMeBT);
+		paymentLayout.addComponent(paymentModeLayout);
+		paymentLayout.addComponent(deliveryBillMeLayout);
 
 		subTotalLayout.addComponent(subTotalLB);
 		subTotalLayout.addComponent(subTotalColonLB);
@@ -282,6 +284,11 @@ public class BillingComponent extends CustomComponent {
 		totalLayout.addComponent(totalLB);
 		totalLayout.addComponent(totalColonLB);
 		totalLayout.addComponent(totalValueLB);
+
+		paymentModeLayout.setContent(payModeOG);
+
+		deliveryBillMeLayout.addComponent(deliveryChB);
+		deliveryBillMeLayout.addComponent(billMeBT);
 
 		subTotalLayout.setComponentAlignment(subTotalLB, Alignment.BOTTOM_LEFT);
 		subTotalLayout.setComponentAlignment(subTotalColonLB,
@@ -309,6 +316,19 @@ public class BillingComponent extends CustomComponent {
 		totalLayout.setWidth("100%");
 		totalLayout.setMargin(false);
 		totalLayout.setSpacing(true);
+
+		paymentModeLayout.setStyleName(Runo.PANEL_LIGHT);
+		paymentModeLayout.setImmediate(false);
+		paymentModeLayout.setWidth("100%");
+
+		deliveryBillMeLayout.setComponentAlignment(deliveryChB,
+				Alignment.MIDDLE_LEFT);
+		deliveryBillMeLayout.setComponentAlignment(billMeBT,
+				Alignment.MIDDLE_RIGHT);
+		deliveryBillMeLayout.setImmediate(false);
+		deliveryBillMeLayout.setWidth("100%");
+		deliveryBillMeLayout.setMargin(false);
+		deliveryBillMeLayout.setSpacing(true);
 
 		paymentLayout.setImmediate(false);
 		paymentLayout.setWidth("100%");
