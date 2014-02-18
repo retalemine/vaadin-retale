@@ -50,18 +50,16 @@ public class BillingComponent extends CustomComponent {
 
 	private Label subTotalValueLB = new Label();
 	private Label totalValueLB = new Label();
-	private ComboBox taxTypeCB = new ComboBox(null, Arrays.asList(new String[] {
-			"Tax", "VAT", "Sales Tax", "Service Tax" }));
 	private HashMap<String, Double> taxPercentageMap = new HashMap<String, Double>() {
 		private static final long serialVersionUID = -6862987030835995078L;
 
 		{
-			put("Tax", 0.0);
 			put("VAT", 4.0);
 			put("Sales Tax", 5.0);
-			put("Service Tax", 4.5);
+			put("Service Tax", 12.0);
 		}
 	};
+	private ComboBox taxTypeCB = new ComboBox(null, taxPercentageMap.keySet());
 	private Label taxValueLB = new Label();
 
 	private ComboBox productNameCB = new ComboBox(
@@ -176,10 +174,9 @@ public class BillingComponent extends CustomComponent {
 		totalColonLB.setValue(COLON);
 		totalColonLB.setStyleName("v-align-right");
 
-		taxTypeCB.select(TAX);
+		taxTypeCB.setInputPrompt(TAX);
 		taxTypeCB.setFilteringMode(FilteringMode.CONTAINS);
-		taxTypeCB.setNullSelectionAllowed(false);
-		taxTypeCB.setPageLength(5);
+		taxTypeCB.setNullSelectionAllowed(true);
 		taxTypeCB.setWidth("100%");
 		taxTypeCB.setImmediate(true);
 		taxTypeCB.addValueChangeListener(new Property.ValueChangeListener() {
@@ -187,12 +184,17 @@ public class BillingComponent extends CustomComponent {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				taxValueLB.setValue(String.valueOf((taxPercentageMap.get(event
-						.getProperty().getValue()) * Double
-						.parseDouble(subTotalValueLB.getValue())) / 100));
-				totalValueLB.setValue(String.valueOf(Double
-						.parseDouble(subTotalValueLB.getValue())
-						+ Double.parseDouble(taxValueLB.getValue())));
+				if (null != event.getProperty().getValue()) {
+					taxValueLB.setValue(String.valueOf((taxPercentageMap
+							.get(event.getProperty().getValue()) * Double
+							.parseDouble(subTotalValueLB.getValue())) / 100));
+					totalValueLB.setValue(String.valueOf(Double
+							.parseDouble(subTotalValueLB.getValue())
+							+ Double.parseDouble(taxValueLB.getValue())));
+				} else {
+					taxValueLB.setValue(ZERO);
+					totalValueLB.setValue(subTotalValueLB.getValue());
+				}
 			}
 		});
 
@@ -228,6 +230,7 @@ public class BillingComponent extends CustomComponent {
 
 		deliveryChB.setImmediate(true);
 		deliveryChB.addValueChangeListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = -8065726451855270185L;
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
@@ -451,12 +454,16 @@ public class BillingComponent extends CustomComponent {
 					.getItemProperty(AMOUNT).getValue();
 		}
 		subTotalValueLB.setValue(String.valueOf(subTotal));
-		taxValueLB
-				.setValue(String.valueOf((taxPercentageMap.get(taxTypeCB
-						.getValue()) * Double.parseDouble(subTotalValueLB
-						.getValue())) / 100));
-		totalValueLB.setValue(String.valueOf(Double.parseDouble(subTotalValueLB
-				.getValue()) + Double.parseDouble(taxValueLB.getValue())));
+		if (null == taxTypeCB.getValue()) {
+			totalValueLB.setValue(subTotalValueLB.getValue());
+		} else {
+			taxValueLB.setValue(String.valueOf((taxPercentageMap.get(taxTypeCB
+					.getValue()) * Double.parseDouble(subTotalValueLB
+					.getValue())) / 100));
+			totalValueLB.setValue(String.valueOf(Double
+					.parseDouble(subTotalValueLB.getValue())
+					+ Double.parseDouble(taxValueLB.getValue())));
+		}
 	}
 
 	private Component buildAddToCart() {
