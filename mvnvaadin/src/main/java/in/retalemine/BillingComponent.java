@@ -19,10 +19,12 @@ import com.vaadin.ui.AbstractSelect.NewItemHandler;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -30,6 +32,7 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.Align;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -72,6 +75,10 @@ public class BillingComponent extends CustomComponent {
 	private Button addToCartBT = new Button();
 	private Button billMeBT = new Button();
 
+	private TextField cusNameTF = new TextField();
+	private TextField cusContactNoTF = new TextField();
+	private TextArea cusAddressTA = new TextArea();
+
 	private final String SUB_TOTAL = "SubTotal";
 	private final String EMPTY = "";
 	private final String ZERO = "0.0";
@@ -92,10 +99,14 @@ public class BillingComponent extends CustomComponent {
 	private final String PROMPT_PRODUCT_RATE = "Rate";
 	private final String PROMPT_QUANTITY = "Quantity";
 	private final String PROMPT_QTY_SUFFIX = "Unit";
+	private final String HOME_DELIVERY = "Home delivery";
 	private final String BILL_ME = "Bill Me";
 	private final String PAY_CASH = "Cash";
 	private final String PAY_CHEQUE = "Cheque";
 	private final String PAY_DELAYED = "Delayed";
+	private final String CUSTOMER_NAME = "Customer Name";
+	private final String CUSTOMER_CONTACT_NO = "Contact No.";
+	private final String CUSTOMER_ADDRESS = "Address";
 
 	public BillingComponent() {
 		setCompositionRoot(buildMainLayout());
@@ -151,6 +162,7 @@ public class BillingComponent extends CustomComponent {
 		Label totalColonLB = new Label();
 		Label taxColonLB = new Label();
 		final OptionGroup payModeOG = new OptionGroup();
+		final CheckBox deliveryChB = new CheckBox(HOME_DELIVERY);
 
 		subTotalLB.setValue(SUB_TOTAL);
 		subTotalValueLB.setValue(ZERO);
@@ -202,11 +214,26 @@ public class BillingComponent extends CustomComponent {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if (PAY_CHEQUE.equals(event.getProperty().getValue())) {
-					// customer details needed
+					mandateCustomerDetails(true);
 				} else if (PAY_DELAYED.equals(event.getProperty().getValue())) {
-					// customer details needed
+					mandateCustomerDetails(true);
 				} else if (PAY_CASH.equals(event.getProperty().getValue())) {
-					// customer details not mandatory
+					if (!deliveryChB.getValue()) {
+						mandateCustomerDetails(false);
+					}
+
+				}
+			}
+		});
+
+		deliveryChB.setImmediate(true);
+		deliveryChB.addValueChangeListener(new Property.ValueChangeListener() {
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if (PAY_CASH.equals(payModeOG.getValue())) {
+					mandateCustomerDetails((Boolean) event.getProperty()
+							.getValue());
 				}
 			}
 		});
@@ -234,6 +261,7 @@ public class BillingComponent extends CustomComponent {
 		paymentLayout.addComponent(taxLayout);
 		paymentLayout.addComponent(totalLayout);
 		paymentLayout.addComponent(payModeOG);
+		paymentLayout.addComponent(deliveryChB);
 		paymentLayout.addComponent(billMeBT);
 
 		subTotalLayout.addComponent(subTotalLB);
@@ -283,8 +311,35 @@ public class BillingComponent extends CustomComponent {
 		return paymentLayout;
 	}
 
+	protected void mandateCustomerDetails(boolean isRequired) {
+		cusNameTF.setRequired(isRequired);
+		cusContactNoTF.setRequired(isRequired);
+		cusAddressTA.setRequired(isRequired);
+	}
+
 	private Component buildCustomerProfile() {
-		Panel customerPanel = new Panel("Customer details");
+		Panel customerPanel = new Panel();
+		VerticalLayout customerVLayout = new VerticalLayout();
+		FormLayout customerForm = new FormLayout();
+
+		cusNameTF.setCaption(CUSTOMER_NAME);
+		cusNameTF.setWidth("50%");
+		cusContactNoTF.setCaption(CUSTOMER_CONTACT_NO);
+		cusContactNoTF.setWidth("50%");
+		cusAddressTA.setCaption(CUSTOMER_ADDRESS);
+		cusAddressTA.setWidth("60%");
+
+		customerForm.addComponent(cusNameTF);
+		customerForm.addComponent(cusContactNoTF);
+		customerForm.addComponent(cusAddressTA);
+
+		customerVLayout.addComponent(customerForm);
+		customerPanel.setContent(customerVLayout);
+
+		customerVLayout.setImmediate(false);
+		customerVLayout.setWidth("100%");
+		customerVLayout.setMargin(true);
+		customerVLayout.setSpacing(true);
 
 		customerPanel.setImmediate(false);
 		customerPanel.setWidth("100%");
@@ -300,7 +355,7 @@ public class BillingComponent extends CustomComponent {
 		billableItemsTB.addContainerProperty(UNIT_RATE, Double.class, 0.0);
 		billableItemsTB.addContainerProperty(QUANTITY, String.class, "1");
 		billableItemsTB.addContainerProperty(AMOUNT, Double.class, 0.0);
-		billableItemsTB.setColumnAlignment("Amount", Align.RIGHT);
+		billableItemsTB.setColumnAlignment(AMOUNT, Align.RIGHT);
 		billableItemsTB.setSizeFull();
 		billableItemsTB.setColumnExpandRatio(SERIAL_NO, 1);
 		billableItemsTB.setColumnExpandRatio(PRODUCT_DESC, 18);

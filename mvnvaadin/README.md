@@ -1,9 +1,16 @@
+[tick]: https://raw.github.com/retalemine/roadmap/master/images/tick-16x12.png "Done"
+
 ####Action Items:
-* Create vaadin project using archetype
-* Import to eclipse
-* Run on server
-* Run in debug mode
-* code billing function
+* Create vaadin project using archetype ![][tick]
+* Import to eclipse ![][tick]
+* Run on server ![][tick]
+* Run in debug mode ![][tick]
+* Code billing component UI ![][tick]
+* Code billing services using mongoDB
+
+####Known issues:
+* Total can possibly have four decimals
+* Update cart button enables without modification
 
 ####Commands:
 * Vaadin application creation using 'application' archetype (includes custom widget):
