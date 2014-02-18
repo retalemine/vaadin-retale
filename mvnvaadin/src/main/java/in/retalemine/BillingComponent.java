@@ -28,6 +28,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
@@ -65,7 +67,7 @@ public class BillingComponent extends CustomComponent {
 	private ComboBox productNameCB = new ComboBox(
 			null,
 			Arrays.asList(new String[] { "Lux Sandal", "Hamam", "Cinthol Old" }));
-	private ComboBox productPriceCB = new ComboBox(null,
+	private ComboBox productRateCB = new ComboBox(null,
 			Arrays.asList(new Double[] { 10.0, 20.0, 30.0, 40.0, 50.0 }));
 	private TextField quantityTF = new TextField();
 	private ComboBox qtySuffixCB = new ComboBox(null,
@@ -105,6 +107,7 @@ public class BillingComponent extends CustomComponent {
 	private final String CUSTOMER_NAME = "Customer Name";
 	private final String CUSTOMER_CONTACT_NO = "Contact No.";
 	private final String CUSTOMER_ADDRESS = "Address";
+	private final Integer CUSTOMER_ADDRESS_ROWS = 2;
 
 	public BillingComponent() {
 		setCompositionRoot(buildMainLayout());
@@ -257,6 +260,7 @@ public class BillingComponent extends CustomComponent {
 				billableItemsTB.removeAllItems();
 				updateBillingPayments();
 				payModeOG.select(PAY_CASH);
+				deliveryChB.setValue(false);
 			}
 		});
 
@@ -331,6 +335,7 @@ public class BillingComponent extends CustomComponent {
 		cusContactNoTF.setWidth("50%");
 		cusAddressTA.setCaption(CUSTOMER_ADDRESS);
 		cusAddressTA.setWidth("60%");
+		cusAddressTA.setRows(CUSTOMER_ADDRESS_ROWS);
 
 		customerForm.addComponent(cusNameTF);
 		customerForm.addComponent(cusContactNoTF);
@@ -378,7 +383,7 @@ public class BillingComponent extends CustomComponent {
 									.getProperty().getValue());
 							productNameCB.setValue(selectedItem
 									.getItemProperty(PRODUCT_DESC).getValue());
-							productPriceCB.setValue(selectedItem
+							productRateCB.setValue(selectedItem
 									.getItemProperty(UNIT_RATE).getValue());
 							String qtyArray[] = selectedItem
 									.getItemProperty(QUANTITY).getValue()
@@ -476,7 +481,7 @@ public class BillingComponent extends CustomComponent {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if (null != productNameCB.getValue()
-						&& null != productPriceCB.getValue()
+						&& null != productRateCB.getValue()
 						&& null != quantityTF && null != qtySuffixCB.getValue()) {
 					addToCartBT.setEnabled(true);
 					addToCartBT.focus();
@@ -515,25 +520,32 @@ public class BillingComponent extends CustomComponent {
 		});
 		productNameCB.addValueChangeListener(addToCartEnabler);
 
-		productPriceCB.setInputPrompt(PROMPT_PRODUCT_RATE);
-		productPriceCB.setFilteringMode(FilteringMode.STARTSWITH);
-		productPriceCB.setWidth("100%");
-		productPriceCB.setRequired(true);
-		productPriceCB.setPageLength(10);
-		productPriceCB.setNullSelectionAllowed(true);
-		productPriceCB.setImmediate(true);
-		productPriceCB.setNewItemsAllowed(true);
-		productPriceCB.setNewItemHandler(new NewItemHandler() {
+		productRateCB.setInputPrompt(PROMPT_PRODUCT_RATE);
+		productRateCB.setFilteringMode(FilteringMode.STARTSWITH);
+		productRateCB.setWidth("100%");
+		productRateCB.setRequired(true);
+		productRateCB.setPageLength(10);
+		productRateCB.setNullSelectionAllowed(true);
+		productRateCB.setImmediate(true);
+		productRateCB.setNewItemsAllowed(true);
+		productRateCB.setNewItemHandler(new NewItemHandler() {
 			private static final long serialVersionUID = 4239289366078811975L;
 
 			@Override
-			public void addNewItem(String newPrice) {
-				Double parsedPrice = Double.parseDouble(newPrice.trim());
-				productPriceCB.addItem(parsedPrice);
-				productPriceCB.setValue(parsedPrice);
+			public void addNewItem(String newRate) {
+				try {
+					Double parsedRate = Double.parseDouble(newRate.trim());
+					productRateCB.addItem(parsedRate);
+					productRateCB.setValue(parsedRate);
+				} catch (NumberFormatException e) {
+					Notification.show("Invalid Rate", newRate,
+							Type.TRAY_NOTIFICATION);
+					productRateCB.setValue(null);
+					productRateCB.focus();
+				}
 			}
 		});
-		productPriceCB.addValueChangeListener(addToCartEnabler);
+		productRateCB.addValueChangeListener(addToCartEnabler);
 
 		quantityTF.setInputPrompt(PROMPT_QUANTITY);
 		quantityTF.setRequired(true);
@@ -564,10 +576,10 @@ public class BillingComponent extends CustomComponent {
 				if (ADD_TO_CART.equals(addToCartBT.getCaption())) {
 					productInfo[0] = billableItemsTB.size() + 1;
 					productInfo[1] = productNameCB.getValue();
-					productInfo[2] = productPriceCB.getValue();
+					productInfo[2] = productRateCB.getValue();
 					productInfo[3] = quantityTF.getValue() + " "
 							+ qtySuffixCB.getValue();
-					productInfo[4] = (Double) productPriceCB.getValue()
+					productInfo[4] = (Double) productRateCB.getValue()
 							* Double.parseDouble(quantityTF.getValue());
 					billableItemsTB.addItem(productInfo, billableItemIdSeq);
 					billableItemsTB
@@ -578,13 +590,13 @@ public class BillingComponent extends CustomComponent {
 					selectedItemId.getItemProperty(PRODUCT_DESC).setValue(
 							productNameCB.getValue());
 					selectedItemId.getItemProperty(UNIT_RATE).setValue(
-							productPriceCB.getValue());
+							productRateCB.getValue());
 					selectedItemId.getItemProperty(QUANTITY).setValue(
 							quantityTF.getValue() + " "
 									+ qtySuffixCB.getValue());
 					selectedItemId.getItemProperty(AMOUNT)
 							.setValue(
-									(Double) productPriceCB.getValue()
+									(Double) productRateCB.getValue()
 											* Double.parseDouble(quantityTF
 													.getValue()));
 				}
@@ -602,13 +614,13 @@ public class BillingComponent extends CustomComponent {
 		addToCartLayout.setSpacing(true);
 
 		addToCartLayout.addComponent(productNameCB);
-		addToCartLayout.addComponent(productPriceCB);
+		addToCartLayout.addComponent(productRateCB);
 		addToCartLayout.addComponent(quantityTF);
 		addToCartLayout.addComponent(qtySuffixCB);
 		addToCartLayout.addComponent(addToCartBT);
 
 		addToCartLayout.setExpandRatio(productNameCB, 4);
-		addToCartLayout.setExpandRatio(productPriceCB, 1.5f);
+		addToCartLayout.setExpandRatio(productRateCB, 1.5f);
 		addToCartLayout.setExpandRatio(quantityTF, 1f);
 		addToCartLayout.setExpandRatio(qtySuffixCB, 1f);
 		addToCartLayout.setExpandRatio(addToCartBT, 1.5f);
@@ -618,7 +630,7 @@ public class BillingComponent extends CustomComponent {
 
 	protected void resetAddToCart() {
 		productNameCB.setValue(null);
-		productPriceCB.setValue(null);
+		productRateCB.setValue(null);
 		quantityTF.setValue(EMPTY);
 		qtySuffixCB.setValue(null);
 		addToCartBT.setEnabled(false);
