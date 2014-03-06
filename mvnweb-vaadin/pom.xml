@@ -1,39 +1,58 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>in.retalemine</groupId>
-  <artifactId>mvnweb-vaadin</artifactId>
-  <packaging>war</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>mvnweb-vaadin Maven Webapp</name>
-  <url>http://maven.apache.org</url>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <finalName>mvnweb-vaadin</finalName>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.0.7.v20131107</version>
-        <configuration>
-          <stopKey>STOP</stopKey>
-          <stopPort>9999</stopPort>
-          <scanIntervalSeconds>5</scanIntervalSeconds>
-          <!-- changes path from root to this - http://localhost:8080/mvnweb-vaadin/1.0-SNAPSHOT/ -->
-          <!--
-          <webApp>
-            <contextPath>/${project.artifactId}/${project.version}</contextPath>
-          </webApp>
-          -->
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>in.retalemine</groupId>
+	<artifactId>mvnweb-vaadin</artifactId>
+	<packaging>war</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Vaadin web application</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<vaadin.version>7.1.11</vaadin.version>
+		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+	</properties>
+	<dependencies>
+		<!-- testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- UI: vaadin -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-server</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client-compiled</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-themes</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>mvnweb-vaadin</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>9.0.7.v20131107</version>
+				<configuration>
+					<stopKey>STOP</stopKey>
+					<stopPort>9999</stopPort>
+					<scanIntervalSeconds>5</scanIntervalSeconds>
+					<!-- changes path from root to this - http://localhost:8080/mvnweb-vaadin/1.0-SNAPSHOT/ -->
+					<!-- <webApp> -->
+					<!-- <contextPath>/${project.artifactId}/${project.version}</contextPath> -->
+					<!-- </webApp> -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
