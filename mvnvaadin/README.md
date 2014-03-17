@@ -11,6 +11,60 @@
 ####Known issues:
 * Total can possibly have four decimals
 * Update cart button enables without modification
+* Robust way of handling unit price unit and quantity unit
+
+####Events:
+* Build components skeleton without data
+* Search product
+  * dynamic fetch( limit and lazy loading on scroll)
+* Product on confirm
+  * load price (filter)
+  * load quantity unit (filter  logic) 
+
+####Vaadin classes - Try out:
+* FieldGroup, TabSheet, RichTextArea, Embedded, Table(addGeneratedColumn)
+* TextChangeEventMode.LAZY
+* Custom Filter
+* ContainerDataSource, ItemDataSource, PropertyDataSource
+* BeanItemContainer, IndexedContainer, LazyQueryContainer, FilesystemContainer...
+* AbstractApplicationServlet
+* FacadeFactory
+
+####Web.xml:
+* Params
+  * productionMode
+  * contextConfigLocation
+  * contextInitializerClasses --> ApplicationContextInitializer<ConfigurableWebApplicationContext>
+* Listeners  
+  * ContextLoaderListener
+  * RequestContextListener
+
+####Classes
+* WebApplicationContextUtils
+* ConfigurableEnvironment -> setActiveProfiles
+
+####Packages Name
+* View
+  * ui
+  * view
+  * window
+* Controller
+  * filter
+  * service
+  * util
+  * controller
+* Model
+  * bean
+  * entity
+  * domain model
+  * query
+  * repository
+  * container
+
+####Naming Enabler:
+* ContextProfileInitializer
+* ContextHelper
+* ApplicationServlet
 
 ####Commands:
 * Vaadin application creation using 'application' archetype (includes custom widget):

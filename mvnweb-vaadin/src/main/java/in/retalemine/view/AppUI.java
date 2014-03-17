@@ -1,11 +1,12 @@
-package in.retalemine;
+package in.retalemine.view;
 
-import in.retalemine.component.BillingComponent;
+import in.retalemine.view.ui.ProductUI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
 
 public class AppUI extends UI {
@@ -15,7 +16,8 @@ public class AppUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
-		setContent(new BillingComponent());
+		// setContent(new BillingComponent());
+		setContent(new ProductUI(new HorizontalLayout()));
 		logger.info("Completed setting layout");
 	}
 

@@ -15,7 +15,7 @@
 		<init-param>
 			<description>Vaadin UI</description>
 			<param-name>UI</param-name>
-			<param-value>in.retalemine.AppUI</param-value>
+			<param-value>in.retalemine.view.AppUI</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>

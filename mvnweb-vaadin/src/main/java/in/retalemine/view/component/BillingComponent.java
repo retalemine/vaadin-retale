@@ -1,4 +1,4 @@
-package in.retalemine.component;
+package in.retalemine.view.component;
 
 import java.util.Arrays;
 import java.util.Date;

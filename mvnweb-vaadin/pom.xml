@@ -8,10 +8,11 @@
 	<name>Vaadin web application</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<vaadin.version>7.1.11</vaadin.version>
+		<vaadin.version>7.1.12</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<slf4j.version>1.7.6</slf4j.version>
 		<log4j.version>2.0-rc1</log4j.version>
+		<jscience.version>4.3.1</jscience.version>
 	</properties>
 	<dependencies>
 		<!-- testing -->
@@ -52,6 +53,12 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
 			<version>${vaadin.version}</version>
+		</dependency>
+		<!-- util: jscience -->
+		<dependency>
+			<groupId>org.jscience</groupId>
+			<artifactId>jscience</artifactId>
+			<version>${jscience.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
