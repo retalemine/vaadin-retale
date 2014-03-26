@@ -76,6 +76,7 @@
 					<!-- <webApp> -->
 					<!-- <contextPath>/${project.artifactId}/${project.version}</contextPath> -->
 					<!-- </webApp> -->
+					<jvmArgs>-XX:PermSize=64m -XX:MaxPermSize=128m</jvmArgs>
 				</configuration>
 			</plugin>
 		</plugins>

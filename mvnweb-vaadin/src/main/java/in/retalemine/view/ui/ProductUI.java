@@ -1,6 +1,7 @@
 package in.retalemine.view.ui;
 
 import in.retalemine.view.VO.ProductVO;
+import in.retalemine.view.VO.QuantityVO;
 import in.retalemine.view.container.DummyProductContainer;
 
 import org.jscience.economics.money.Money;
@@ -25,6 +26,7 @@ public class ProductUI extends CustomComponent implements ValueChangeListener {
 
 	private ProductNameUI productNameUI;
 	private ProductRateUI productRateUI;
+	private ProductQuantityUI productQuantityUI;
 
 	@SuppressWarnings("unchecked")
 	public ProductUI(AbstractLayout layout) {
@@ -32,12 +34,17 @@ public class ProductUI extends CustomComponent implements ValueChangeListener {
 		this.productNameUI.addValueChangeListener((ValueChangeListener) this);
 		this.productRateUI = new ProductRateUI();
 		this.productRateUI.addValueChangeListener((ValueChangeListener) this);
+		this.productQuantityUI = new ProductQuantityUI();
+		this.productQuantityUI
+				.addValueChangeListener((ValueChangeListener) this);
 
 		setCompositionRoot(layout);
 
 		layout.setWidth("100%");
 		layout.addComponent(this.productNameUI);
 		layout.addComponent(this.productRateUI);
+		layout.addComponent(this.productQuantityUI);
+
 		/**
 		 * need a robust way to ensure lazy loading is implemented successfully
 		 */
@@ -60,6 +67,14 @@ public class ProductUI extends CustomComponent implements ValueChangeListener {
 			rateContainer.removeAllItems();
 			rateContainer.addAll(productVO.getUnitPrices());
 			productRateUI.select(rateContainer.firstItemId());
+			productQuantityUI.getContainerDataSource().removeAllItems();
+			productQuantityUI.setUnit(productVO.getProductUnit().getUnit());
+		} else if (property instanceof ProductQuantityUI
+				&& null != property.getValue()) {
+			QuantityVO quantity = (QuantityVO) property.getValue();
+			Notification.show("Value change event", quantity.getValue(),
+					Type.TRAY_NOTIFICATION);
+			logger.info("Value change event {}", quantity.getValue());
 		}
 	}
 

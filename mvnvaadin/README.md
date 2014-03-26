@@ -6,23 +6,15 @@
 * Run on server ![][tick]
 * Run in debug mode ![][tick]
 * Code billing component UI ![][tick]
-* Code billing services using mongoDB
 
 ####Known issues:
 * Total can possibly have four decimals
 * Update cart button enables without modification
 * Robust way of handling unit price unit and quantity unit
 
-####Events:
-* Build components skeleton without data
-* Search product
-  * dynamic fetch( limit and lazy loading on scroll)
-* Product on confirm
-  * load price (filter)
-  * load quantity unit (filter  logic) 
-
 ####Vaadin classes - Try out:
 * FieldGroup, TabSheet, RichTextArea, Embedded, Table(addGeneratedColumn)
+* Popup view, Keyboard shortcuts, Voverlay, Combobox dropdown,
 * TextChangeEventMode.LAZY
 * Custom Filter
 * ContainerDataSource, ItemDataSource, PropertyDataSource

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -28,6 +29,7 @@ public class ProductRateUI extends ComboBox {
 		setNullSelectionAllowed(true);
 		setContainerDataSource(new BeanItemContainer<Amount<Money>>(
 				Amount.class));
+		setItemCaptionMode(AbstractSelect.ItemCaptionMode.ID);
 		setImmediate(true);
 		// setNewProductHandler();
 		addItemSetChangeListener(new ItemSetChangeListener() {

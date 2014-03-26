@@ -11,8 +11,6 @@ import org.jscience.physics.amount.Amount;
 
 public class ProductVO{
 
-	//private static final long serialVersionUID = -764415971860198921L;
-	
 	protected String productName;
 	protected Measure<Double, ? extends Quantity> productUnit;
 	protected String productDescription;
