@@ -1,24 +1,42 @@
 package in.retalemine.view.component;
 
+import in.retalemine.util.RegExUtil;
+import in.retalemine.util.RetaSI;
+import in.retalemine.util.Rupee;
+import in.retalemine.util.UnitUtil;
+import in.retalemine.view.VO.BillItemVO;
+import in.retalemine.view.VO.ProductVO;
+import in.retalemine.view.constants.UIconstants;
+import in.retalemine.view.ui.ProductQuantityCB;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+
+import javax.measure.Measure;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.economics.money.Money;
+import org.jscience.physics.amount.Amount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractSelect.NewItemHandler;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -42,6 +60,14 @@ import com.vaadin.ui.themes.Runo;
 public class BillingComponent extends CustomComponent {
 
 	private static final long serialVersionUID = -156296978141491295L;
+
+	static {
+		RetaSI.getInstance();
+	}
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(BillingComponent.class);
+
 	private VerticalLayout mainLayout;
 
 	private Label billNoLB = new Label();
@@ -49,7 +75,6 @@ public class BillingComponent extends CustomComponent {
 	private DateField billDateDF = new DateField();
 
 	private Table billableItemsTB = new Table();
-	private Integer billableItemIdSeq = new Integer(1);
 
 	private Label subTotalValueLB = new Label();
 	private Label totalValueLB = new Label();
@@ -70,9 +95,7 @@ public class BillingComponent extends CustomComponent {
 			Arrays.asList(new String[] { "Lux Sandal", "Hamam", "Cinthol Old" }));
 	private ComboBox productRateCB = new ComboBox(null,
 			Arrays.asList(new Double[] { 10.0, 20.0, 30.0, 40.0, 50.0 }));
-	private TextField quantityTF = new TextField();
-	private ComboBox qtySuffixCB = new ComboBox(null,
-			Arrays.asList(new String[] { "pcs", "kg", "lt" }));
+	private ProductQuantityCB quantityCB = new ProductQuantityCB();
 	private Button addToCartBT = new Button();
 	private Button billMeBT = new Button();
 
@@ -86,8 +109,15 @@ public class BillingComponent extends CustomComponent {
 	private final String COLON = ":";
 	private final String TOTAL = "Total";
 	private final String TAX = "Tax";
+	private final String PID_SERIAL_NO = "serialNo";
+	private final String PID_PRODUCT_NAME = "productName";
+	private final String PID_PRODUCT_UNIT = "productUnit";
+	private final String PID_UNIT_RATE = "unitPrice";
+	private final String PID_QUANTITY = "quantity";
+	private final String PID_AMOUNT = "amount";
 	private final String SERIAL_NO = "No.";
-	private final String PRODUCT_DESC = "Product Description";
+	private final String PRODUCT_NAME = "Product Name";
+	private final String PRODUCT_UNIT = "Unit";
 	private final String UNIT_RATE = "Unit Rate";
 	private final String QUANTITY = "Quantity";
 	private final String AMOUNT = "Amount";
@@ -98,8 +128,6 @@ public class BillingComponent extends CustomComponent {
 	private final String UPDATE_CART = "Update Cart";
 	private final String PROMPT_PRODUCT_NAME = "Product Name";
 	private final String PROMPT_PRODUCT_RATE = "Rate";
-	private final String PROMPT_QUANTITY = "Quantity";
-	private final String PROMPT_QTY_SUFFIX = "Unit";
 	private final String HOME_DELIVERY = "Home delivery";
 	private final String BILL_ME = "Bill Me";
 	private final String PAY_CASH = "Cash";
@@ -260,7 +288,7 @@ public class BillingComponent extends CustomComponent {
 				billDateDF.setValue(new Date());
 				billDateDF.setReadOnly(true);
 				resetAddToCart();
-				billableItemsTB.removeAllItems();
+				billableItemsTB.getContainerDataSource().removeAllItems();
 				updateBillingPayments();
 				payModeOG.select(PAY_CASH);
 				deliveryChB.setValue(false);
@@ -378,20 +406,38 @@ public class BillingComponent extends CustomComponent {
 	private Component buildBillingTable() {
 		Panel billingPanel = new Panel();
 
-		billableItemsTB.addContainerProperty(SERIAL_NO, Integer.class, null);
-		billableItemsTB.addContainerProperty(PRODUCT_DESC, String.class, "");
-		billableItemsTB.addContainerProperty(UNIT_RATE, Double.class, 0.0);
-		billableItemsTB.addContainerProperty(QUANTITY, String.class, "1");
-		billableItemsTB.addContainerProperty(AMOUNT, Double.class, 0.0);
-		billableItemsTB.setColumnAlignment(AMOUNT, Align.RIGHT);
+		billableItemsTB.addContainerProperty(PID_SERIAL_NO, Integer.class,
+				null, SERIAL_NO, null, null);
+		billableItemsTB.addContainerProperty(PID_PRODUCT_NAME, String.class,
+				"", PRODUCT_NAME, null, null);
+		billableItemsTB.addContainerProperty(PID_PRODUCT_UNIT, Measure.class,
+				0.0, PRODUCT_UNIT, null, null);
+		billableItemsTB.addContainerProperty(PID_UNIT_RATE, Amount.class, 0.0,
+				UNIT_RATE, null, null);
+		billableItemsTB.addContainerProperty(PID_QUANTITY,
+				javax.measure.unit.Unit.class, "1", QUANTITY, null, null);
+		billableItemsTB.addContainerProperty(PID_AMOUNT, Amount.class, 0.0,
+				AMOUNT, null, Align.RIGHT);
+
+		billableItemsTB
+				.setContainerDataSource(new BeanItemContainer<BillItemVO<? extends Quantity, ? extends Quantity>>(
+						BillItemVO.class));
+
+		billableItemsTB.setVisibleColumns(new Object[] { PID_SERIAL_NO,
+				PID_PRODUCT_NAME, PID_PRODUCT_UNIT, PID_UNIT_RATE,
+				PID_QUANTITY, PID_AMOUNT });
+
+		billableItemsTB.setColumnExpandRatio(PID_SERIAL_NO, 1);
+		billableItemsTB.setColumnExpandRatio(PID_PRODUCT_NAME, 18);
+		billableItemsTB.setColumnExpandRatio(PID_PRODUCT_UNIT, 4);
+		billableItemsTB.setColumnExpandRatio(PID_UNIT_RATE, 4);
+		billableItemsTB.setColumnExpandRatio(PID_QUANTITY, 2);
+		billableItemsTB.setColumnExpandRatio(PID_AMOUNT, 6);
+
 		billableItemsTB.setSizeFull();
-		billableItemsTB.setColumnExpandRatio(SERIAL_NO, 1);
-		billableItemsTB.setColumnExpandRatio(PRODUCT_DESC, 18);
-		billableItemsTB.setColumnExpandRatio(UNIT_RATE, 4);
-		billableItemsTB.setColumnExpandRatio(QUANTITY, 2);
-		billableItemsTB.setColumnExpandRatio(AMOUNT, 6);
 		billableItemsTB.setSelectable(true);
 		billableItemsTB.setImmediate(true);
+
 		billableItemsTB
 				.addValueChangeListener(new Property.ValueChangeListener() {
 					private static final long serialVersionUID = 172879437178906284L;
@@ -399,25 +445,23 @@ public class BillingComponent extends CustomComponent {
 					@Override
 					public void valueChange(ValueChangeEvent event) {
 						if (null != event.getProperty().getValue()) {
-							Item selectedItem = billableItemsTB.getItem(event
-									.getProperty().getValue());
-							productNameCB.setValue(selectedItem
-									.getItemProperty(PRODUCT_DESC).getValue());
-							productRateCB.setValue(selectedItem
-									.getItemProperty(UNIT_RATE).getValue());
-							String qtyArray[] = selectedItem
-									.getItemProperty(QUANTITY).getValue()
-									.toString().split(" ");
-							quantityTF.setValue(qtyArray[0]);
-							qtySuffixCB.setValue(qtyArray[1]);
-							addToCartBT.setCaption(UPDATE_CART);
-							addToCartBT.setEnabled(false);
-							billableItemsTB.focus();
+							// Item selectedItem = billableItemsTB.getItem(event
+							// .getProperty().getValue());
+							// productNameCB.setValue(selectedItem
+							// .getItemProperty(PRODUCT_DESC).getValue());
+							// productRateCB.setValue(selectedItem
+							// .getItemProperty(UNIT_RATE).getValue());
+							// quantityCB.setValue(selectedItem.getItemProperty(
+							// QUANTITY).getValue());
+							// addToCartBT.setCaption(UPDATE_CART);
+							// addToCartBT.setEnabled(false);
+							// billableItemsTB.focus();
 						} else {
 							resetAddToCart();
 						}
 					}
 				});
+
 		billableItemsTB
 				.addItemSetChangeListener(new Container.ItemSetChangeListener() {
 					private static final long serialVersionUID = -8769363500051513731L;
@@ -442,7 +486,8 @@ public class BillingComponent extends CustomComponent {
 			public void handleAction(Action action, Object sender, Object target) {
 				if (target instanceof Table) {
 					if (action == actionDel) {
-						billableItemsTB.removeItem(billableItemsTB.getValue());
+						billableItemsTB.getContainerDataSource().removeItem(
+								billableItemsTB.getValue());
 						reOrderBillingSNo();
 						updateBillingPayments();
 					}
@@ -452,10 +497,11 @@ public class BillingComponent extends CustomComponent {
 			@SuppressWarnings("unchecked")
 			private void reOrderBillingSNo() {
 				Integer serialNoSeq = 1;
-				for (Iterator<?> i = billableItemsTB.getItemIds().iterator(); i
-						.hasNext();) {
-					billableItemsTB.getItem(i.next())
-							.getItemProperty(SERIAL_NO).setValue(serialNoSeq++);
+				for (Iterator<?> i = billableItemsTB.getContainerDataSource()
+						.getItemIds().iterator(); i.hasNext();) {
+					billableItemsTB.getContainerDataSource().getItem(i.next())
+							.getItemProperty(PID_SERIAL_NO)
+							.setValue(serialNoSeq++);
 				}
 			}
 
@@ -464,21 +510,29 @@ public class BillingComponent extends CustomComponent {
 				return new Action[] { actionDel };
 			}
 		});
-		billingPanel.setSizeFull();
 
+		billingPanel.setSizeFull();
 		billingPanel.setContent(billableItemsTB);
 
 		return billingPanel;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void updateBillingPayments() {
-		double subTotal = 0.0;
-		for (Iterator<?> i = billableItemsTB.getItemIds().iterator(); i
-				.hasNext();) {
-			subTotal += (Double) billableItemsTB.getItem(i.next())
-					.getItemProperty(AMOUNT).getValue();
+		Amount<Money> subTotal = Amount.valueOf(0.0, Rupee.INR);
+		for (Iterator<?> i = billableItemsTB.getContainerDataSource()
+				.getItemIds().iterator(); i.hasNext();) {
+			subTotal = subTotal.plus((Amount<Money>) billableItemsTB
+					.getContainerDataSource().getItem(i.next())
+					.getItemProperty(PID_AMOUNT).getValue());
 		}
-		subTotalValueLB.setValue(String.valueOf(subTotal));
+		if (subTotal.isExact()) {
+			subTotalValueLB.setValue(String.valueOf(subTotal.getExactValue()));
+		} else {
+			subTotalValueLB
+					.setValue(String.valueOf(subTotal.getMaximumValue()));
+		}
+
 		if (null == taxTypeCB.getValue()) {
 			totalValueLB.setValue(subTotalValueLB.getValue());
 		} else {
@@ -493,20 +547,54 @@ public class BillingComponent extends CustomComponent {
 
 	private Component buildAddToCart() {
 		HorizontalLayout addToCartLayout = new HorizontalLayout();
-		Property.ValueChangeListener addToCartEnabler;
+		Property.ValueChangeListener addToCartVCListener;
 
-		addToCartEnabler = new Property.ValueChangeListener() {
+		addToCartVCListener = new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 8262792786781169162L;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if (null != productNameCB.getValue()
 						&& null != productRateCB.getValue()
-						&& null != quantityTF && null != qtySuffixCB.getValue()) {
+						&& null != quantityCB.getValue()) {
+					logger.info("Cart BT enabled");
 					addToCartBT.setEnabled(true);
 					addToCartBT.focus();
 				} else {
+					logger.info("Cart BT disabled");
 					addToCartBT.setEnabled(false);
+				}
+				Property<?> property = event.getProperty();
+				if (property instanceof ComboBox && null != property.getValue()) {
+					if (property.getValue() instanceof ProductVO<?>) {
+						ProductVO<? extends Quantity> productVO = (ProductVO<? extends Quantity>) property
+								.getValue();
+						Notification.show("Value change event",
+								productVO.getProductDescription(),
+								Type.TRAY_NOTIFICATION);
+						logger.info("Value change event {}",
+								productVO.getProductDescription());
+						BeanItemContainer<Amount<Money>> rateContainer = (BeanItemContainer<Amount<Money>>) productRateCB
+								.getContainerDataSource();
+						rateContainer.removeAllItems();
+						logger.info("price list {}", productVO.getUnitPrices());
+						if (null != productVO.getUnitPrices()) {
+							logger.info("inside price");
+							rateContainer.addAll(productVO.getUnitPrices());
+							productRateCB.select(rateContainer.firstItemId());
+						}
+						quantityCB.getContainerDataSource().removeAllItems();
+						quantityCB
+								.setUnit(productVO.getProductUnit().getUnit());
+					} else if (property.getValue() instanceof Measure) {
+						Measure<Double, ? extends Quantity> quantity = (Measure<Double, ? extends Quantity>) property
+								.getValue();
+						Notification.show("Value change event",
+								quantity.toString(), Type.TRAY_NOTIFICATION);
+						logger.info("Value change event {}", quantity);
+
+					}
 				}
 			}
 		};
@@ -517,6 +605,13 @@ public class BillingComponent extends CustomComponent {
 		productNameCB.setRequired(true);
 		productNameCB.setPageLength(10);
 		productNameCB.setNullSelectionAllowed(true);
+		productNameCB
+				.setContainerDataSource(new BeanItemContainer<ProductVO<? extends Quantity>>(
+						ProductVO.class));
+		productNameCB
+				.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
+		productNameCB
+				.setItemCaptionPropertyId(UIconstants.PROPERTY_ID_PRODUCT_NAME);
 		productNameCB.setImmediate(true);
 		productNameCB.setNewItemsAllowed(true);
 		productNameCB.setNewItemHandler(new NewItemHandler() {
@@ -524,21 +619,29 @@ public class BillingComponent extends CustomComponent {
 
 			@Override
 			public void addNewItem(String newProductName) {
-				StringBuffer camelCasePName = new StringBuffer();
-				Matcher camelCaseMatcher = Pattern.compile("([a-z])([a-z]*)",
-						Pattern.CASE_INSENSITIVE).matcher(
-						newProductName.trim().replaceAll("\\s+", " "));
-				while (camelCaseMatcher.find()) {
-					camelCaseMatcher.appendReplacement(camelCasePName,
-							camelCaseMatcher.group(1).toUpperCase()
-									+ camelCaseMatcher.group(2).toLowerCase());
+				String camelCasePName = RegExUtil
+						.getCamelCaseString(newProductName);
+				String[] result = RegExUtil.resolveProductUnit(camelCasePName);
+				if (null != result) {
+					String validUnit = null;
+					if (null != (validUnit = UnitUtil.getValidUnit(result[1]))) {
+						result[1] = validUnit;
+						ProductVO<? extends Quantity> productVO = populateProductVO(result);
+						productNameCB.getContainerDataSource().addItem(
+								productVO);
+						productNameCB.setValue(productVO);
+						productRateCB.focus();
+					} else {
+						// TODO modal box to validate product name and get the
+						// unit defined properly
+					}
+				} else {
+					// TODO modal box to validate product name and get the unit
+					// defined properly
 				}
-				camelCaseMatcher.appendTail(camelCasePName);
-				productNameCB.addItem(camelCasePName.toString());
-				productNameCB.setValue(camelCasePName.toString());
 			}
 		});
-		productNameCB.addValueChangeListener(addToCartEnabler);
+		productNameCB.addValueChangeListener(addToCartVCListener);
 
 		productRateCB.setInputPrompt(PROMPT_PRODUCT_RATE);
 		productRateCB.setFilteringMode(FilteringMode.STARTSWITH);
@@ -546,17 +649,32 @@ public class BillingComponent extends CustomComponent {
 		productRateCB.setRequired(true);
 		productRateCB.setPageLength(10);
 		productRateCB.setNullSelectionAllowed(true);
+		productRateCB
+				.setContainerDataSource(new BeanItemContainer<Amount<Money>>(
+						Amount.class));
+		productRateCB.setItemCaptionMode(AbstractSelect.ItemCaptionMode.ID);
 		productRateCB.setImmediate(true);
 		productRateCB.setNewItemsAllowed(true);
 		productRateCB.setNewItemHandler(new NewItemHandler() {
 			private static final long serialVersionUID = 4239289366078811975L;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void addNewItem(String newRate) {
 				try {
-					Double parsedRate = Double.parseDouble(newRate.trim());
-					productRateCB.addItem(parsedRate);
-					productRateCB.setValue(parsedRate);
+					Amount<Money> rate = Amount.valueOf(
+							Double.parseDouble(newRate.trim()), Rupee.INR);
+					productRateCB.addItem(rate);
+					productRateCB.setValue(rate);
+
+					BeanItemContainer<ProductVO<? extends Quantity>> prodContainer = (BeanItemContainer<ProductVO<? extends Quantity>>) productNameCB
+							.getContainerDataSource();
+					((List<Amount<Money>>) prodContainer
+							.getItem(productNameCB.getValue())
+							.getItemProperty("unitPrices").getValue())
+							.add(rate);
+
+					quantityCB.focus();
 				} catch (NumberFormatException e) {
 					Notification.show("Invalid Rate", newRate,
 							Type.TRAY_NOTIFICATION);
@@ -565,22 +683,9 @@ public class BillingComponent extends CustomComponent {
 				}
 			}
 		});
-		productRateCB.addValueChangeListener(addToCartEnabler);
+		productRateCB.addValueChangeListener(addToCartVCListener);
 
-		quantityTF.setInputPrompt(PROMPT_QUANTITY);
-		quantityTF.setRequired(true);
-		quantityTF.setWidth("100%");
-		quantityTF.setImmediate(true);
-		quantityTF.addValueChangeListener(addToCartEnabler);
-
-		qtySuffixCB.setInputPrompt(PROMPT_QTY_SUFFIX);
-		qtySuffixCB.setFilteringMode(FilteringMode.STARTSWITH);
-		qtySuffixCB.setWidth("100%");
-		qtySuffixCB.setRequired(true);
-		qtySuffixCB.setPageLength(10);
-		qtySuffixCB.setNullSelectionAllowed(true);
-		qtySuffixCB.setImmediate(true);
-		qtySuffixCB.addValueChangeListener(addToCartEnabler);
+		quantityCB.addValueChangeListener(addToCartVCListener);
 
 		addToCartBT.setCaption(ADD_TO_CART);
 		addToCartBT.setWidth("100%");
@@ -591,34 +696,40 @@ public class BillingComponent extends CustomComponent {
 			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event) {
-				final Object[] productInfo = new Object[5];
 
 				if (ADD_TO_CART.equals(addToCartBT.getCaption())) {
-					productInfo[0] = billableItemsTB.size() + 1;
-					productInfo[1] = productNameCB.getValue();
-					productInfo[2] = productRateCB.getValue();
-					productInfo[3] = quantityTF.getValue() + " "
-							+ qtySuffixCB.getValue();
-					productInfo[4] = (Double) productRateCB.getValue()
-							* Double.parseDouble(quantityTF.getValue());
-					billableItemsTB.addItem(productInfo, billableItemIdSeq);
-					billableItemsTB
-							.setCurrentPageFirstItemId(billableItemIdSeq++);
+					int serialNo = billableItemsTB.getContainerDataSource()
+							.size() + 1;
+					String productName = ((ProductVO<? extends Quantity>) productNameCB
+							.getValue()).getProductName();
+					Measure<Double, ? extends Quantity> productUnit = ((ProductVO<? extends Quantity>) productNameCB
+							.getValue()).getProductUnit();
+					String productDescription = ((ProductVO<? extends Quantity>) productNameCB
+							.getValue()).getProductDescription();
+					Amount<Money> unitPrice = ((Amount<Money>) productRateCB
+							.getValue());
+					Measure<Double, ? extends Quantity> quantity = (Measure<Double, ? extends Quantity>) quantityCB
+							.getValue();
+					BillItemVO<?, ?> bItem = BillItemVO.valueOf(serialNo,
+							productName, productUnit, productDescription,
+							unitPrice, quantity);
+					billableItemsTB.getContainerDataSource().addItem(bItem);
+					billableItemsTB.setCurrentPageFirstItemId(bItem);
 				} else {
-					Item selectedItemId = billableItemsTB
-							.getItem(billableItemsTB.getValue());
-					selectedItemId.getItemProperty(PRODUCT_DESC).setValue(
-							productNameCB.getValue());
-					selectedItemId.getItemProperty(UNIT_RATE).setValue(
-							productRateCB.getValue());
-					selectedItemId.getItemProperty(QUANTITY).setValue(
-							quantityTF.getValue() + " "
-									+ qtySuffixCB.getValue());
-					selectedItemId.getItemProperty(AMOUNT)
-							.setValue(
-									(Double) productRateCB.getValue()
-											* Double.parseDouble(quantityTF
-													.getValue()));
+					// Item selectedItemId = billableItemsTB
+					// .getItem(billableItemsTB.getValue());
+					// selectedItemId.getItemProperty(PRODUCT_DESC).setValue(
+					// productNameCB.getValue());
+					// selectedItemId.getItemProperty(UNIT_RATE).setValue(
+					// productRateCB.getValue());
+					// selectedItemId.getItemProperty(QUANTITY).setValue(
+					// quantityTF.getValue() + " "
+					// + qtySuffixCB.getValue());
+					// selectedItemId.getItemProperty(AMOUNT)
+					// .setValue(
+					// (Double) productRateCB.getValue()
+					// * Double.parseDouble(quantityTF
+					// .getValue()));
 				}
 				updateBillingPayments();
 				resetAddToCart();
@@ -635,24 +746,27 @@ public class BillingComponent extends CustomComponent {
 
 		addToCartLayout.addComponent(productNameCB);
 		addToCartLayout.addComponent(productRateCB);
-		addToCartLayout.addComponent(quantityTF);
-		addToCartLayout.addComponent(qtySuffixCB);
+		addToCartLayout.addComponent(quantityCB);
 		addToCartLayout.addComponent(addToCartBT);
 
-		addToCartLayout.setExpandRatio(productNameCB, 4);
+		addToCartLayout.setExpandRatio(productNameCB, 5);
 		addToCartLayout.setExpandRatio(productRateCB, 1.5f);
-		addToCartLayout.setExpandRatio(quantityTF, 1f);
-		addToCartLayout.setExpandRatio(qtySuffixCB, 1f);
-		addToCartLayout.setExpandRatio(addToCartBT, 1.5f);
+		addToCartLayout.setExpandRatio(quantityCB, 1.5f);
+		addToCartLayout.setExpandRatio(addToCartBT, 1f);
 
 		return addToCartLayout;
+	}
+
+	protected ProductVO<? extends Quantity> populateProductVO(String[] result) {
+		return ProductVO.valueOf(result[2], Measure.valueOf(
+				Double.parseDouble(result[0]),
+				javax.measure.unit.Unit.valueOf(result[1])), null);
 	}
 
 	protected void resetAddToCart() {
 		productNameCB.setValue(null);
 		productRateCB.setValue(null);
-		quantityTF.setValue(EMPTY);
-		qtySuffixCB.setValue(null);
+		quantityCB.setValue(null);
 		addToCartBT.setEnabled(false);
 		addToCartBT.setCaption(ADD_TO_CART);
 		productNameCB.focus();

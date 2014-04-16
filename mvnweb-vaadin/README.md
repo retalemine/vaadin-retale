@@ -7,8 +7,12 @@
 * Run in debug mode ![][tick]
 * Code billing component UI
   * Dynamic loading of product catalog
+  * Dynamic addition of new product that resolves product name and product unit and model to collect unit, in case.
+  * Input error handling.
   * Dynamic loading of unit price value ![][tick]
+  * Dynamic suggestion of quantity in selected valid unit ![][tick]
   * Dynamic suggestion of quantity in various valid unit
+  * Dynamic suggestion of quantity in various valid unit via JS without server side interaction
   * Add to cart
   * units in pkg and pcs
 * Code billing services using mongoDB

@@ -9,15 +9,12 @@ import javax.measure.quantity.Quantity;
 import org.jscience.economics.money.Money;
 import org.jscience.physics.amount.Amount;
 
-public class ProductVO{
+public class ProductVO<Q extends Quantity> {
 
-	protected String productName;
-	protected Measure<Double, ? extends Quantity> productUnit;
-	protected String productDescription;
+	private String productName;
+	private Measure<Double, Q> productUnit;
+	private String productDescription;
 	private List<Amount<Money>> unitPrices = new ArrayList<Amount<Money>>();
-
-	public ProductVO() {
-	}
 
 	public String getProductName() {
 		return productName;
@@ -27,11 +24,11 @@ public class ProductVO{
 		this.productName = productName;
 	}
 
-	public Measure<Double, ? extends Quantity> getProductUnit() {
+	public Measure<Double, Q> getProductUnit() {
 		return productUnit;
 	}
 
-	public void setProductUnit(Measure<Double, ? extends Quantity> productUnit) {
+	public void setProductUnit(Measure<Double, Q> productUnit) {
 		this.productUnit = productUnit;
 	}
 
@@ -49,6 +46,21 @@ public class ProductVO{
 
 	public void setUnitPrices(List<Amount<Money>> unitPrices) {
 		this.unitPrices = unitPrices;
+	}
+
+	public static <T extends Quantity> ProductVO<T> valueOf(String productName,
+			Measure<Double, T> productUnit, List<Amount<Money>> unitPrices) {
+		ProductVO<T> obj = new ProductVO<T>();
+		obj.setProductName(productName);
+		obj.setProductUnit(productUnit);
+		obj.setProductDescription(productName + " - " + productUnit);
+		if (null != unitPrices) {
+			obj.setUnitPrices(unitPrices);
+		} else {
+			obj.setUnitPrices(new ArrayList<Amount<Money>>());
+		}
+
+		return obj;
 	}
 
 }
