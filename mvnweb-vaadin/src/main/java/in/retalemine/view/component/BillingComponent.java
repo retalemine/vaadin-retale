@@ -7,6 +7,7 @@ import in.retalemine.util.UnitUtil;
 import in.retalemine.view.VO.BillItemVO;
 import in.retalemine.view.VO.ProductVO;
 import in.retalemine.view.constants.UIconstants;
+import in.retalemine.view.converter.AmountConverter;
 import in.retalemine.view.ui.ProductQuantityCB;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ShortcutAction;
@@ -197,13 +199,18 @@ public class BillingComponent extends CustomComponent {
 		final CheckBox deliveryChB = new CheckBox(HOME_DELIVERY);
 
 		subTotalLB.setValue(SUB_TOTAL);
-		subTotalValueLB.setValue(ZERO);
+		subTotalValueLB.setConverter(new AmountConverter());
+		subTotalValueLB
+				.setPropertyDataSource(new ObjectProperty<Amount<Money>>(Amount
+						.valueOf(0.0, Rupee.INR)));
 		subTotalValueLB.setStyleName("v-align-right");
 		subTotalColonLB.setValue(COLON);
 		subTotalColonLB.setStyleName("v-align-right");
 
 		totalLB.setValue(TOTAL);
-		totalValueLB.setValue(ZERO);
+		totalValueLB.setConverter(new AmountConverter());
+		totalValueLB.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
+				Amount.valueOf(0.0, Rupee.INR)));
 		totalValueLB.setStyleName("v-align-right");
 		totalColonLB.setValue(COLON);
 		totalColonLB.setStyleName("v-align-right");
@@ -216,23 +223,30 @@ public class BillingComponent extends CustomComponent {
 		taxTypeCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = -8058680659345726478L;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void valueChange(ValueChangeEvent event) {
+				Amount<Money> subTotalVal = (Amount<Money>) subTotalValueLB
+						.getPropertyDataSource().getValue();
+				Amount<Money> taxVal = Amount.valueOf(0.0, Rupee.INR);
 				if (null != event.getProperty().getValue()) {
-					taxValueLB.setValue(String.valueOf((taxPercentageMap
-							.get(event.getProperty().getValue()) * Double
-							.parseDouble(subTotalValueLB.getValue())) / 100));
-					totalValueLB.setValue(String.valueOf(Double
-							.parseDouble(subTotalValueLB.getValue())
-							+ Double.parseDouble(taxValueLB.getValue())));
+					taxVal = subTotalVal.times(
+							taxPercentageMap
+									.get(event.getProperty().getValue()))
+							.divide(100);
+					taxValueLB.getPropertyDataSource().setValue(taxVal);
 				} else {
-					taxValueLB.setValue(ZERO);
-					totalValueLB.setValue(subTotalValueLB.getValue());
+					taxValueLB.getPropertyDataSource().setValue(taxVal);
+
 				}
+				totalValueLB.getPropertyDataSource().setValue(
+						subTotalVal.plus(taxVal));
 			}
 		});
 
-		taxValueLB.setValue(ZERO);
+		taxValueLB.setConverter(new AmountConverter());
+		taxValueLB.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
+				Amount.valueOf(0.0, Rupee.INR)));
 		taxValueLB.setStyleName("v-align-right");
 		taxColonLB.setValue(COLON);
 		taxColonLB.setStyleName("v-align-right");
@@ -281,6 +295,7 @@ public class BillingComponent extends CustomComponent {
 		billMeBT.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 8926151523719182107L;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void buttonClick(ClickEvent event) {
 				billNoLB.setValue(String.valueOf(billNoSeq++));
@@ -289,7 +304,7 @@ public class BillingComponent extends CustomComponent {
 				billDateDF.setReadOnly(true);
 				resetAddToCart();
 				billableItemsTB.getContainerDataSource().removeAllItems();
-				updateBillingPayments();
+				updateBillingPayments(null, 0);
 				payModeOG.select(PAY_CASH);
 				deliveryChB.setValue(false);
 			}
@@ -483,13 +498,16 @@ public class BillingComponent extends CustomComponent {
 					ShortcutAction.KeyCode.DELETE, null);
 
 			@Override
+			@SuppressWarnings("unchecked")
 			public void handleAction(Action action, Object sender, Object target) {
 				if (target instanceof Table) {
 					if (action == actionDel) {
+						updateBillingPayments(
+								((BillItemVO<?, ?>) billableItemsTB.getValue())
+										.getAmount(), -1);
 						billableItemsTB.getContainerDataSource().removeItem(
 								billableItemsTB.getValue());
 						reOrderBillingSNo();
-						updateBillingPayments();
 					}
 				}
 			}
@@ -518,30 +536,29 @@ public class BillingComponent extends CustomComponent {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void updateBillingPayments() {
-		Amount<Money> subTotal = Amount.valueOf(0.0, Rupee.INR);
-		for (Iterator<?> i = billableItemsTB.getContainerDataSource()
-				.getItemIds().iterator(); i.hasNext();) {
-			subTotal = subTotal.plus((Amount<Money>) billableItemsTB
-					.getContainerDataSource().getItem(i.next())
-					.getItemProperty(PID_AMOUNT).getValue());
-		}
-		if (subTotal.isExact()) {
-			subTotalValueLB.setValue(String.valueOf(subTotal.getExactValue()));
+	protected void updateBillingPayments(Amount<Money> rate, int mode) {
+
+		Amount<Money> subTotalVal = (Amount<Money>) subTotalValueLB
+				.getPropertyDataSource().getValue();
+
+		if (null == rate) {
+			subTotalVal = subTotalVal.times(0.0);
+		} else if (mode == 1) {
+			subTotalVal = subTotalVal.plus(rate);
 		} else {
-			subTotalValueLB
-					.setValue(String.valueOf(subTotal.getMaximumValue()));
+			subTotalVal = subTotalVal.minus(rate);
 		}
 
+		subTotalValueLB.getPropertyDataSource().setValue(subTotalVal);
+
 		if (null == taxTypeCB.getValue()) {
-			totalValueLB.setValue(subTotalValueLB.getValue());
+			totalValueLB.getPropertyDataSource().setValue(subTotalVal);
 		} else {
-			taxValueLB.setValue(String.valueOf((taxPercentageMap.get(taxTypeCB
-					.getValue()) * Double.parseDouble(subTotalValueLB
-					.getValue())) / 100));
-			totalValueLB.setValue(String.valueOf(Double
-					.parseDouble(subTotalValueLB.getValue())
-					+ Double.parseDouble(taxValueLB.getValue())));
+			Amount<Money> taxVal = subTotalVal.times(
+					taxPercentageMap.get(taxTypeCB.getValue())).divide(100);
+			taxValueLB.getPropertyDataSource().setValue(taxVal);
+			totalValueLB.getPropertyDataSource().setValue(
+					subTotalVal.plus(taxVal));
 		}
 	}
 
@@ -715,6 +732,7 @@ public class BillingComponent extends CustomComponent {
 							unitPrice, quantity);
 					billableItemsTB.getContainerDataSource().addItem(bItem);
 					billableItemsTB.setCurrentPageFirstItemId(bItem);
+					updateBillingPayments(bItem.getAmount(), 1);
 				} else {
 					// Item selectedItemId = billableItemsTB
 					// .getItem(billableItemsTB.getValue());
@@ -731,7 +749,6 @@ public class BillingComponent extends CustomComponent {
 					// * Double.parseDouble(quantityTF
 					// .getValue()));
 				}
-				updateBillingPayments();
 				resetAddToCart();
 			}
 
