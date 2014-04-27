@@ -4,6 +4,7 @@ import in.retalemine.view.component.BillingComponent;
 import in.retalemine.view.tryout.PopupViewContentsExample;
 import in.retalemine.view.tryout.PopupViewExample;
 import in.retalemine.view.tryout.ProductQuantityUITF;
+import in.retalemine.view.tryout.SubWindowExample;
 import in.retalemine.view.tryout.blackboard.BlackBoardExampleApp;
 import in.retalemine.view.ui.ProductUI;
 
@@ -31,10 +32,19 @@ public class AppUI extends UI {
 		if ("bcomp".equals(profile)) {
 			setContent(new BillingComponent());
 		} else if ("tryout".equals(profile)) {
-			new BlackBoardExampleApp();
-			vLayout.addComponent(new PopupViewContentsExample());
-			vLayout.addComponent(new PopupViewExample());
-			vLayout.addComponent(new ProductQuantityUITF());
+			String type = request.getParameter("type");
+			String context = request.getParameter("context");
+			logger.info("Type {}", type);
+			logger.info("Context {}", context);
+			if ("blackboard".equals(type)) {
+				new BlackBoardExampleApp();
+			} else if ("popup".equals(type)) {
+				vLayout.addComponent(new PopupViewContentsExample());
+				vLayout.addComponent(new PopupViewExample());
+				vLayout.addComponent(new ProductQuantityUITF());
+			} else if ("subwindow".equals(type)) {
+				vLayout.addComponent(new SubWindowExample(context));
+			}
 			setContent(vLayout);
 		} else {
 			vLayout.addComponent(new ProductUI());

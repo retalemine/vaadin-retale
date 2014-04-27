@@ -21,7 +21,7 @@ public class RegExUtil {
 		camelCaseMatcher.appendTail(camelCaseOutput);
 		return camelCaseOutput.toString();
 	}
-	
+
 	public static String[] resolveProductUnit(String input) {
 		String[] result = null;
 		StringBuffer productName = null;
@@ -41,4 +41,15 @@ public class RegExUtil {
 		return result;
 	}
 
+	public static String[] resolveQuantity(String input) {
+		String[] result = null;
+		Matcher quantityMatcher = Pattern.compile("(\\s?([0-9]+)(.*))")
+				.matcher(input.trim().replaceAll("\\s+", " "));
+		if (quantityMatcher.matches() && 3 == quantityMatcher.groupCount()) {
+			result = new String[2];
+			result[0] = quantityMatcher.group(2);
+			result[1] = quantityMatcher.group(3).trim();
+		}
+		return result;
+	}
 }

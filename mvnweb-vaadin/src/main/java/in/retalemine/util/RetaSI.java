@@ -24,6 +24,8 @@ public final class RetaSI extends SystemOfUnits {
 
 	public static final Unit<Dimensionless> PIECE = retaSI(Unit.ONE);
 
+	public static final Unit<Dimensionless> PACKET = PIECE.alternate("pkt");
+
 	public static final Unit<Dimensionless> DOZEN = retaSI(PIECE.times(12));
 
 	static {
