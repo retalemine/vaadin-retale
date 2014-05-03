@@ -7,11 +7,6 @@
 * Run in debug mode ![][tick]
 * Code billing component UI ![][tick]
 
-####Known issues:
-* Total can possibly have four decimals
-* Update cart button enables without modification
-* Robust way of handling unit price unit and quantity unit
-
 ####Vaadin classes - Try out:
 * FieldGroup, TabSheet, RichTextArea, Embedded, Table(addGeneratedColumn)
 * Popup view, Keyboard shortcuts, Voverlay, Combobox dropdown,
@@ -81,6 +76,3 @@ mvn package
 mvn jetty:run
 visit: http://localhost:8080/
 ```
-
-
-

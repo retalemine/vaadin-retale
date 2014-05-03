@@ -6,7 +6,7 @@
 * Run on server ![][tick]
 * Run in debug mode ![][tick]
 * Code billing component UI
-  * Dynamic loading of product catalog
+  * Dynamic loading of product catalog. Include Lazy loading.
   * Dynamic addition of new product that resolves product name and product unit and model to collect unit, in case.
   * Input error handling.
   * Dynamic loading of unit price value ![][tick]
@@ -14,17 +14,21 @@
   * Dynamic suggestion of quantity in various valid unit
   * Dynamic suggestion of quantity in various valid unit via JS without server side interaction
   * Add to cart
-  * units in pkg and pcs
+  * units in pkt and pcs ![][tick]
 * Code billing services using mongoDB
+* Test Cases
 
-####Events:
-* Build components skeleton without data
-* Search product
-  * dynamic fetch( limit and lazy loading on scroll)
-* Product on confirm
-  * load price (filter)
-  * load quantity unit (filter  logic) 
-  
+####Known Issues and Enhancements:
+* With product name not mentioned, upon entering price getting error.
+* End user browser time should be chosen to display bill time. And subsequently need an analysis on mongodb date save w.r.t browser local time.
+* Enable user to define tax and tax groups. Also perform a business analysis on implication of each tax type especially the VAT tax which may vary across product category.
+* Noticeable size for 'bill me' button.
+* Include feature to cancel a bill.
+* Ensure that item quantity is not zero.
+* Include feature to edit an billItem in table.
+* Include feature to enable cashier to input the received pay amount and display the pay back amount.
+ 
+####Commands:  
 * Maven archetype
 ```
 mvn archetype:generate \
