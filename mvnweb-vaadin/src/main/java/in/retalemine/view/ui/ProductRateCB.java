@@ -15,14 +15,14 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
-public class ProductRateUI extends ComboBox {
+public class ProductRateCB extends ComboBox {
 
 	private static final long serialVersionUID = -6557115445568992868L;
 	private static final Logger logger = LoggerFactory
-			.getLogger(ProductRateUI.class);
+			.getLogger(ProductRateCB.class);
 
-	public ProductRateUI() {
-		setSizeFull();
+	public ProductRateCB() {
+		setWidth("100%");
 		setInputPrompt(UIconstants.PROMPT_PRODUCT_RATE);
 		setFilteringMode(FilteringMode.STARTSWITH);
 		setPageLength(10);

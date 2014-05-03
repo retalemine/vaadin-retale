@@ -17,14 +17,14 @@ import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 
-public class ProductNameUI extends ComboBox {
+public class ProductNameCB extends ComboBox {
 
 	private static final long serialVersionUID = 6595774216366213098L;
 	private static final Logger logger = LoggerFactory
-			.getLogger(ProductNameUI.class);
+			.getLogger(ProductNameCB.class);
 
-	public ProductNameUI() {
-		setSizeFull();
+	public ProductNameCB() {
+		setWidth("100%");
 		setPageLength(15);
 		setInputPrompt(UIconstants.PROMPT_PRODUCT_NAME);
 		setFilteringMode(FilteringMode.CONTAINS);
@@ -33,7 +33,6 @@ public class ProductNameUI extends ComboBox {
 		setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 		setItemCaptionPropertyId("productDescription");
 		setImmediate(true);
-		// setNewProductHandler();
 		addItemSetChangeListener(new ItemSetChangeListener() {
 
 			private static final long serialVersionUID = 2122075138884519543L;
@@ -44,6 +43,39 @@ public class ProductNameUI extends ComboBox {
 						.getContainer()).getContainerDataSource());
 			}
 		});
+		setNewItemsAllowed(true);
+		setNewItemHandler(new NewItemHandler() {
+			private static final long serialVersionUID = -5815947094191981101L;
+
+			@Override
+			public void addNewItem(String newProductName) {
+				StringBuffer camelCasePName = new StringBuffer();
+				Matcher camelCaseMatcher = Pattern.compile("([a-z])([a-z]*)",
+						Pattern.CASE_INSENSITIVE).matcher(
+						newProductName.trim().replaceAll("\\s+", " "));
+				while (camelCaseMatcher.find()) {
+					camelCaseMatcher.appendReplacement(camelCasePName,
+							camelCaseMatcher.group(1).toUpperCase()
+									+ camelCaseMatcher.group(2).toLowerCase());
+				}
+				camelCaseMatcher.appendTail(camelCasePName);
+				ProductVO productVO = populateProductVO(camelCasePName
+						.toString());
+				if (null != productVO) {
+					productVO.setProductName(camelCasePName.toString());
+					productVO.setProductDescription(camelCasePName.toString());
+					addItem(productVO);
+					// setValue(camelCasePName.toString());
+					logger.info("Add new value {}", newProductName);
+				} else {
+					setValue(null);
+				}
+			}
+		});
+	}
+
+	protected ProductVO populateProductVO(String camelCasePName) {
+		return new ProductVO();
 	}
 
 	@Override
@@ -69,33 +101,6 @@ public class ProductNameUI extends ComboBox {
 		logger.info("buildFilter - filterString = {} - filteringMode = {} ",
 				filterString, filteringMode);
 		return super.buildFilter(filterString, filteringMode);
-	}
-
-	private void setNewProductHandler() {
-		setNewItemsAllowed(true);
-		setNewItemHandler(new NewItemHandler() {
-			private static final long serialVersionUID = -5815947094191981101L;
-
-			@Override
-			public void addNewItem(String newProductName) {
-				StringBuffer camelCasePName = new StringBuffer();
-				Matcher camelCaseMatcher = Pattern.compile("([a-z])([a-z]*)",
-						Pattern.CASE_INSENSITIVE).matcher(
-						newProductName.trim().replaceAll("\\s+", " "));
-				while (camelCaseMatcher.find()) {
-					camelCaseMatcher.appendReplacement(camelCasePName,
-							camelCaseMatcher.group(1).toUpperCase()
-									+ camelCaseMatcher.group(2).toLowerCase());
-				}
-				camelCaseMatcher.appendTail(camelCasePName);
-				ProductVO productVO = new ProductVO();
-				productVO.setProductName(camelCasePName.toString());
-				productVO.setProductDescription(camelCasePName.toString());
-				addItem(productVO);
-				// setValue(camelCasePName.toString());
-				logger.info("Add new value {}", newProductName);
-			}
-		});
 	}
 
 }

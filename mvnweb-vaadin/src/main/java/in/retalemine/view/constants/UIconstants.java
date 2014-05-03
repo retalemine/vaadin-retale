@@ -5,6 +5,13 @@ public interface UIconstants {
 	public static final String PROMPT_PRODUCT_NAME = "Product Name";
 	public static final String PROMPT_PRODUCT_RATE = "Rate";
 	public static final String PROMPT_QUANTITY = "Quantity";
+	public static final String ADD_TO_CART = "Add To Cart";
+	
+	public static final String SERIAL_NO = "No.";
+	public static final String PRODUCT_DESC = "Product Description";
+	public static final String UNIT_RATE = "Unit Rate";
+	public static final String QUANTITY = "Quantity";
+	public static final String AMOUNT = "Amount";
 	
 	public static final String SUB_TOTAL = "SubTotal";
 	public static final String EMPTY = "";
@@ -12,15 +19,9 @@ public interface UIconstants {
 	public static final String COLON = ":";
 	public static final String TOTAL = "Total";
 	public static final String TAX = "Tax";
-	public static final String SERIAL_NO = "No.";
-	public static final String PRODUCT_DESC = "Product Description";
-	public static final String UNIT_RATE = "Unit Rate";
-	public static final String QUANTITY = "Quantity";
-	public static final String AMOUNT = "Amount";
 	public static final String BILL_NO = "Bill No. ";
 	public static final String DATE = "Date :";
 	public static final String DATE_FORMAT = "dd-MM-yyyy";
-	public static final String ADD_TO_CART = "Add To Cart";
 	public static final String UPDATE_CART = "Update Cart";
 	public static final String PROMPT_QTY_SUFFIX = "Unit";
 	public static final String HOME_DELIVERY = "Home delivery";
