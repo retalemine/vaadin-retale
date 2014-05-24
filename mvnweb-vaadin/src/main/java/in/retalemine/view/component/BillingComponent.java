@@ -260,6 +260,7 @@ public class BillingComponent extends CustomComponent {
 		payModeOG.setMultiSelect(false);
 		payModeOG.select(PAY_CASH);
 		payModeOG.setWidth("100%");
+		payModeOG.setStyleName("v-select-optiongroup-horizontal");
 		payModeOG.setImmediate(true);
 		payModeOG.addValueChangeListener(new Property.ValueChangeListener() {
 

@@ -13,10 +13,12 @@ import in.retalemine.view.ui.ProductUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+@Theme("retaletheme")
 public class AppUI extends UI {
 
 	private static final long serialVersionUID = -4411379836207492227L;

@@ -14,8 +14,9 @@
 		<vaadin.version>7.1.12</vaadin.version>
 		<blackboard-addon.version>2.2.0</blackboard-addon.version>
 		<jscience.version>4.3.1</jscience.version>
-		<jetty-plugin.version>9.0.7.v20131107</jetty-plugin.version>
+		<jetty.plugin.version>9.0.7.v20131107</jetty.plugin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+		<lifecycle-mapping.plugin.version>1.0.0</lifecycle-mapping.plugin.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -82,7 +83,7 @@
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jetty-plugin.version}</version>
+				<version>${jetty.plugin.version}</version>
 				<configuration>
 					<stopKey>STOP</stopKey>
 					<stopPort>9999</stopPort>
@@ -94,6 +95,82 @@
 					<jvmArgs>-XX:PermSize=64m -XX:MaxPermSize=128m</jvmArgs>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>${vaadin.plugin.version}</version>
+				<configuration>
+					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+					<!-- <runTarget>mobilemail</runTarget> -->
+					<!-- We are doing "inplace" but into subdir VAADIN/widgetsets. -->
+					<!-- This way compatible with Vaadin eclipse plugin. -->
+					<!-- <webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets</webappDirectory> -->
+					<!-- <hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets</hostedWebapp> -->
+					<noServer>true</noServer>
+					<!-- Remove draftCompile when project is ready -->
+					<draftCompile>false</draftCompile>
+					<compileReport>true</compileReport>
+					<style>OBF</style>
+					<strict>true</strict>
+					<runTarget>http://localhost:8080/</runTarget>
+				</configuration>
+				<executions>
+					<execution>
+						<configuration>
+							<!-- if you don't specify any modules, the plugin will find them -->
+							<!-- <modules> -->
+							<!-- <module>com.vaadin.demo.mobilemail.gwt.ColorPickerWidgetSet</module> -->
+							<!-- </modules> -->
+						</configuration>
+						<goals>
+							<goal>clean</goal>
+							<goal>resources</goal>
+							<goal>update-theme</goal>
+							<!-- <goal>update-widgetset</goal> -->
+							<goal>compile-theme</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>${lifecycle-mapping.plugin.version}</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.vaadin</groupId>
+										<artifactId>
+											vaadin-maven-plugin
+										</artifactId>
+										<versionRange>
+											[7.1.12,)
+										</versionRange>
+										<goals>
+											<goal>resources</goal>
+											<!-- <goal>update-widgetset</goal> -->
+											<goal>compile</goal>
+											<goal>update-theme</goal>
+											<goal>compile-theme</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 </project>
