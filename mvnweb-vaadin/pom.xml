@@ -8,11 +8,14 @@
 	<name>Vaadin web application</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<vaadin.version>7.1.12</vaadin.version>
-		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+		<junit.version>3.8.1</junit.version>
 		<slf4j.version>1.7.6</slf4j.version>
 		<log4j.version>2.0-rc1</log4j.version>
+		<vaadin.version>7.1.12</vaadin.version>
+		<blackboard-addon.version>2.2.0</blackboard-addon.version>
 		<jscience.version>4.3.1</jscience.version>
+		<jetty-plugin.version>9.0.7.v20131107</jetty-plugin.version>
+		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -25,7 +28,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- logger -->
@@ -64,7 +67,7 @@
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>blackboard</artifactId>
-			<version>2.2.0</version>
+			<version>${blackboard-addon.version}</version>
 		</dependency>
 		<!-- util: jscience -->
 		<dependency>
@@ -79,7 +82,7 @@
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>9.0.7.v20131107</version>
+				<version>${jetty-plugin.version}</version>
 				<configuration>
 					<stopKey>STOP</stopKey>
 					<stopPort>9999</stopPort>

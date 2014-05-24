@@ -604,12 +604,20 @@ public class BillingComponent extends CustomComponent {
 					}
 				}
 				if (null != productNameCB.getValue()) {
-					if (null != productRateCB.getValue()
-							&& null != quantityCB.getValue()) {
-						logger.info("Cart BT enabled");
-						addToCartBT.setEnabled(true);
-						addToCartBT.focus();
+					productRateCB.setEnabled(true);
+					if (null != productRateCB.getValue()) {
+						quantityCB.setEnabled(true);
+						if (null != quantityCB.getValue()) {
+							logger.info("Cart BT enabled");
+							addToCartBT.setEnabled(true);
+							addToCartBT.focus();
+						} else {
+							logger.info("Cart BT disabled");
+							addToCartBT.setEnabled(false);
+						}
 					} else {
+						quantityCB.setValue(null);
+						quantityCB.setEnabled(false);
 						logger.info("Cart BT disabled");
 						addToCartBT.setEnabled(false);
 					}
@@ -618,7 +626,10 @@ public class BillingComponent extends CustomComponent {
 							.getContainerDataSource();
 					rateContainer.removeAllItems();
 					productRateCB.setValue(null);
-					logger.info("Cart BT disabled and rate reset");
+					quantityCB.setValue(null);
+					productRateCB.setEnabled(false);
+					quantityCB.setEnabled(false);
+					logger.info("Cart BT disabled and rate,quantity reset");
 					addToCartBT.setEnabled(false);
 				}
 			}
@@ -635,8 +646,7 @@ public class BillingComponent extends CustomComponent {
 						ProductVO.class));
 		productNameCB
 				.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
-		productNameCB
-				.setItemCaptionPropertyId(PID_PRODUCT_DESCRIPTION);
+		productNameCB.setItemCaptionPropertyId(PID_PRODUCT_DESCRIPTION);
 		productNameCB.setImmediate(true);
 		productNameCB.setNewItemsAllowed(true);
 		productNameCB.setNewItemHandler(new NewItemHandler() {
@@ -671,6 +681,7 @@ public class BillingComponent extends CustomComponent {
 		productRateCB.setFilteringMode(FilteringMode.STARTSWITH);
 		productRateCB.setWidth("100%");
 		productRateCB.setRequired(true);
+		productRateCB.setEnabled(false);
 		productRateCB.setPageLength(10);
 		productRateCB.setNullSelectionAllowed(true);
 		productRateCB
@@ -710,6 +721,7 @@ public class BillingComponent extends CustomComponent {
 		});
 		productRateCB.addValueChangeListener(addToCartVCListener);
 
+		quantityCB.setEnabled(false);
 		quantityCB.addValueChangeListener(addToCartVCListener);
 
 		addToCartBT.setCaption(ADD_TO_CART);
@@ -949,6 +961,8 @@ public class BillingComponent extends CustomComponent {
 		productNameCB.setValue(null);
 		productRateCB.setValue(null);
 		quantityCB.setValue(null);
+		productRateCB.setEnabled(false);
+		quantityCB.setEnabled(false);
 		addToCartBT.setEnabled(false);
 		addToCartBT.setCaption(ADD_TO_CART);
 		productNameCB.focus();

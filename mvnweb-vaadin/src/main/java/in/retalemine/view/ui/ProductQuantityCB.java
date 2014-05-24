@@ -73,35 +73,43 @@ public class ProductQuantityCB extends ComboBox {
 			public void addNewItem(String newQuantity) {
 				String[] quantitySplit = null;
 				javax.measure.unit.Unit<?> newUnit = null;
+				Double parsedQuantity = 0.0;
 				Measure<Double, ? extends Quantity> quantity = null;
 				try {
-					quantity = Measure.valueOf(
-							Double.parseDouble(newQuantity.trim()), unit);
-					addItem(quantity);
-					setValue(quantity);
+					parsedQuantity = Double.parseDouble(newQuantity.trim());
+					if (parsedQuantity > 0) {
+						quantity = Measure.valueOf(parsedQuantity, unit);
+						addItem(quantity);
+						setValue(quantity);
+					} else {
+						displayModal(1);
+					}
 				} catch (NumberFormatException e) {
 					quantitySplit = RegExUtil.resolveQuantity(newQuantity);
 					if (null != quantitySplit) {
 						String validUnit = null;
+						parsedQuantity = Double.parseDouble(quantitySplit[0]);
 						if (null != (validUnit = UnitUtil
-								.getValidUnit(quantitySplit[1]))) {
+								.getValidUnit(quantitySplit[1]))
+								&& parsedQuantity > 0) {
 							newUnit = javax.measure.unit.Unit
 									.valueOf(validUnit);
 							try {
 								unit.getConverterTo(newUnit);
 							} catch (ConversionException ce) {
-								if(!UnitUtil.unitList.get(UnitUtil.unitList.size()-1).contains(newUnit.toString())){
+								if (!UnitUtil.unitList.get(
+										UnitUtil.unitList.size() - 1).contains(
+										newUnit.toString())) {
 									displayModal(Double
-											.parseDouble(quantitySplit[0]));	
+											.parseDouble(quantitySplit[0]));
 								}
 							}
-							quantity = Measure.valueOf(
-									Double.parseDouble(quantitySplit[0]),
-									newUnit);
+							quantity = Measure.valueOf(parsedQuantity, newUnit);
 							addItem(quantity);
 							setValue(quantity);
 						} else {
-							displayModal(Double.parseDouble(quantitySplit[0]));
+							displayModal(parsedQuantity > 0 ? parsedQuantity
+									: 1);
 						}
 					} else {
 						displayModal(1);
@@ -218,7 +226,8 @@ public class ProductQuantityCB extends ComboBox {
 							&& !((String) quantityUnitCB.getValue()).trim()
 									.isEmpty()) {
 						((Window) parent).close();
-						logger.info("window closed!! {}",quantityUnitCB.getValue());
+						logger.info("window closed!! {}",
+								quantityUnitCB.getValue());
 						getNewItemHandler().addNewItem(
 								quantityTF.getValue()
 										+ quantityUnitCB.getValue());

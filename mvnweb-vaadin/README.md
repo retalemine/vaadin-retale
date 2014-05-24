@@ -19,15 +19,16 @@
 * Test Cases
 
 ####Known Issues and Enhancements:
-* With product name not mentioned, upon entering price getting error.
+* With product name not mentioned, upon entering price getting error. ![][tick]
 * End user browser time should be chosen to display bill time. And subsequently need an analysis on mongodb date save w.r.t browser local time.
 * Enable user to define tax and tax groups. Also perform a business analysis on implication of each tax type especially the VAT tax which may vary across product category.
 * Noticeable size for 'bill me' button.
 * Include feature to cancel a bill.
-* Ensure that item quantity is not zero.
+* Ensure that item quantity is not zero. ![][tick]
 * Include feature to edit an billItem in table.
 * Include feature to enable cashier to input the received pay amount and display the pay back amount.
- 
+* Container getting updated with duplicate values. Be it ProductNameCB container or the BillItemTB container.
+
 ####Commands:  
 * Maven archetype
 ```
