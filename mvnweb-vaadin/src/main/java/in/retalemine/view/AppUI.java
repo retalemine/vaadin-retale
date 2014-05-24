@@ -5,6 +5,8 @@ import in.retalemine.view.tryout.PopupViewContentsExample;
 import in.retalemine.view.tryout.PopupViewExample;
 import in.retalemine.view.tryout.ProductQuantityUITF;
 import in.retalemine.view.tryout.SubWindowExample;
+import in.retalemine.view.tryout.beancontainer.BeanContainerEx;
+import in.retalemine.view.tryout.beancontainer.BeanContainerIDResolverEx;
 import in.retalemine.view.tryout.blackboard.BlackBoardExampleApp;
 import in.retalemine.view.ui.ProductUI;
 
@@ -44,6 +46,9 @@ public class AppUI extends UI {
 				vLayout.addComponent(new ProductQuantityUITF());
 			} else if ("subwindow".equals(type)) {
 				vLayout.addComponent(new SubWindowExample(context));
+			} else if ("beancontainer".equals(type)) {
+				vLayout.addComponent(new BeanContainerEx());
+				vLayout.addComponent(new BeanContainerIDResolverEx());
 			}
 			setContent(vLayout);
 		} else {
