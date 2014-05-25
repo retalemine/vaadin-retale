@@ -8,6 +8,7 @@
 	<name>Vaadin web application</name>
 	<url>http://maven.apache.org</url>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>3.8.1</junit.version>
 		<slf4j.version>1.7.6</slf4j.version>
 		<log4j.version>2.0-rc1</log4j.version>
@@ -123,12 +124,12 @@
 							<!-- </modules> -->
 						</configuration>
 						<goals>
-							<goal>clean</goal>
-							<goal>resources</goal>
-							<goal>update-theme</goal>
+							<!-- <goal>clean</goal> -->
+							<!-- <goal>resources</goal> -->
+							<!-- <goal>update-theme</goal> -->
 							<!-- <goal>update-widgetset</goal> -->
 							<goal>compile-theme</goal>
-							<goal>compile</goal>
+							<!-- <goal>compile</goal> -->
 						</goals>
 					</execution>
 				</executions>
@@ -156,7 +157,7 @@
 										</versionRange>
 										<goals>
 											<goal>resources</goal>
-											<!-- <goal>update-widgetset</goal> -->
+											<goal>update-widgetset</goal>
 											<goal>compile</goal>
 											<goal>update-theme</goal>
 											<goal>compile-theme</goal>
