@@ -27,6 +27,8 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.converter.StringToDoubleConverter;
@@ -109,6 +111,9 @@ public class BillingComponent extends CustomComponent {
 	private TextField cusNameTF = new TextField();
 	private TextField cusContactNoTF = new TextField();
 	private TextArea cusAddressTA = new TextArea();
+
+	BeanContainer<String, ProductVO<? extends Quantity>> productNameCBCTR = new BeanContainer<String, ProductVO<? extends Quantity>>(
+			ProductVO.class);
 
 	private final String SUB_TOTAL = "SubTotal";
 	private final String COLON = ":";
@@ -455,6 +460,7 @@ public class BillingComponent extends CustomComponent {
 
 		billableItemsTB.setSizeFull();
 		billableItemsTB.setSelectable(true);
+		billableItemsTB.setMultiSelect(false);
 		billableItemsTB.setImmediate(true);
 
 		billableItemsTB
@@ -571,70 +577,6 @@ public class BillingComponent extends CustomComponent {
 
 	private Component buildAddToCart() {
 		HorizontalLayout addToCartLayout = new HorizontalLayout();
-		Property.ValueChangeListener addToCartVCListener;
-
-		addToCartVCListener = new Property.ValueChangeListener() {
-
-			private static final long serialVersionUID = 6161204006947720960L;
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				Property<?> property = event.getProperty();
-				if (property instanceof ComboBox && null != property.getValue()) {
-					if (property.getValue() instanceof ProductVO<?>) {
-						ProductVO<? extends Quantity> productVO = (ProductVO<? extends Quantity>) property
-								.getValue();
-						Notification.show("Value change event",
-								productVO.getProductDescription(),
-								Type.TRAY_NOTIFICATION);
-						logger.info("Value change event {}",
-								productVO.getProductDescription());
-						BeanItemContainer<Amount<Money>> rateContainer = (BeanItemContainer<Amount<Money>>) productRateCB
-								.getContainerDataSource();
-						rateContainer.removeAllItems();
-						logger.info("price list {}", productVO.getUnitPrices());
-						if (null != productVO.getUnitPrices()) {
-							logger.info("inside price");
-							rateContainer.addAll(productVO.getUnitPrices());
-							productRateCB.select(rateContainer.firstItemId());
-						}
-						quantityCB.getContainerDataSource().removeAllItems();
-						quantityCB
-								.setUnit(productVO.getProductUnit().getUnit());
-					}
-				}
-				if (null != productNameCB.getValue()) {
-					productRateCB.setEnabled(true);
-					if (null != productRateCB.getValue()) {
-						quantityCB.setEnabled(true);
-						if (null != quantityCB.getValue()) {
-							logger.info("Cart BT enabled");
-							addToCartBT.setEnabled(true);
-							addToCartBT.focus();
-						} else {
-							logger.info("Cart BT disabled");
-							addToCartBT.setEnabled(false);
-						}
-					} else {
-						quantityCB.setValue(null);
-						quantityCB.setEnabled(false);
-						logger.info("Cart BT disabled");
-						addToCartBT.setEnabled(false);
-					}
-				} else {
-					BeanItemContainer<Amount<Money>> rateContainer = (BeanItemContainer<Amount<Money>>) productRateCB
-							.getContainerDataSource();
-					rateContainer.removeAllItems();
-					productRateCB.setValue(null);
-					quantityCB.setValue(null);
-					productRateCB.setEnabled(false);
-					quantityCB.setEnabled(false);
-					logger.info("Cart BT disabled and rate,quantity reset");
-					addToCartBT.setEnabled(false);
-				}
-			}
-		};
 
 		productNameCB.setInputPrompt(PROMPT_PRODUCT_NAME);
 		productNameCB.setFilteringMode(FilteringMode.CONTAINS);
@@ -642,12 +584,8 @@ public class BillingComponent extends CustomComponent {
 		productNameCB.setRequired(true);
 		productNameCB.setPageLength(10);
 		productNameCB.setNullSelectionAllowed(true);
-		productNameCB
-				.setContainerDataSource(new BeanItemContainer<ProductVO<? extends Quantity>>(
-						ProductVO.class));
-		productNameCB
-				.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
-		productNameCB.setItemCaptionPropertyId(PID_PRODUCT_DESCRIPTION);
+		productNameCBCTR.setBeanIdProperty(PID_PRODUCT_DESCRIPTION);
+		productNameCB.setContainerDataSource(productNameCBCTR);
 		productNameCB.setImmediate(true);
 		productNameCB.setNewItemsAllowed(true);
 		productNameCB.setNewItemHandler(new NewItemHandler() {
@@ -664,9 +602,9 @@ public class BillingComponent extends CustomComponent {
 					if (null != (validUnit = UnitUtil.getValidUnit(result[1]))) {
 						result[1] = validUnit;
 						ProductVO<? extends Quantity> productVO = populateProductVO(result);
-						productNameCB.getContainerDataSource().addItem(
-								productVO);
-						productNameCB.setValue(productVO);
+						productNameCBCTR.addBean(productVO);
+						productNameCB.setValue(productVO
+								.getProductDescription());
 						productRateCB.focus();
 					} else {
 						displayModal(result[2], Double.parseDouble(result[0]));
@@ -676,7 +614,49 @@ public class BillingComponent extends CustomComponent {
 				}
 			}
 		});
-		productNameCB.addValueChangeListener(addToCartVCListener);
+		productNameCB.addValueChangeListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = 4924793475484630166L;
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if (null != event.getProperty().getValue()) {
+					logger.info("sme ** value {}", event.getProperty()
+							.getValue());
+					logger.info("sme ** type {}", event.getProperty().getType());
+					logger.info(" {}", productNameCB.getItem(event
+							.getProperty().getValue()));
+					logger.info(" {}", productNameCBCTR.getItem(event
+							.getProperty().getValue()));
+					logger.info(
+							" {}",
+							productNameCBCTR.getItem(
+									event.getProperty().getValue()).getBean());
+					ProductVO<? extends Quantity> productVO = (ProductVO<? extends Quantity>) productNameCBCTR
+							.getItem(event.getProperty().getValue()).getBean();
+					Notification.show("Value change event",
+							productVO.getProductDescription(),
+							Type.TRAY_NOTIFICATION);
+					logger.info("Value change event {}",
+							productVO.getProductDescription());
+					BeanItemContainer<Amount<Money>> rateContainer = (BeanItemContainer<Amount<Money>>) productRateCB
+							.getContainerDataSource();
+					rateContainer.removeAllItems();
+					logger.info("price list {}", productVO.getUnitPrices());
+					if (null != productVO.getUnitPrices()) {
+						logger.info("inside price");
+						rateContainer.addAll(productVO.getUnitPrices());
+						productRateCB.select(rateContainer.firstItemId());
+					}
+					quantityCB.getContainerDataSource().removeAllItems();
+					logger.info("sme ** inside");
+					logger.info("sme ** inside {}", productVO);
+					quantityCB.setUnit(productVO.getProductUnit().getUnit());
+				}
+				updateAddToCartStatus();
+			}
+		});
 
 		productRateCB.setInputPrompt(PROMPT_PRODUCT_RATE);
 		productRateCB.setFilteringMode(FilteringMode.STARTSWITH);
@@ -704,9 +684,7 @@ public class BillingComponent extends CustomComponent {
 					productRateCB.addItem(rate);
 					productRateCB.setValue(rate);
 
-					BeanItemContainer<ProductVO<? extends Quantity>> prodContainer = (BeanItemContainer<ProductVO<? extends Quantity>>) productNameCB
-							.getContainerDataSource();
-					((List<Amount<Money>>) prodContainer
+					((List<Amount<Money>>) productNameCBCTR
 							.getItem(productNameCB.getValue())
 							.getItemProperty("unitPrices").getValue())
 							.add(rate);
@@ -720,10 +698,26 @@ public class BillingComponent extends CustomComponent {
 				}
 			}
 		});
-		productRateCB.addValueChangeListener(addToCartVCListener);
+		productRateCB.addValueChangeListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = -7502332085136797624L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				updateAddToCartStatus();
+			}
+		});
 
 		quantityCB.setEnabled(false);
-		quantityCB.addValueChangeListener(addToCartVCListener);
+		quantityCB.addValueChangeListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = 2140623144360706800L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				updateAddToCartStatus();
+			}
+		});
 
 		addToCartBT.setCaption(ADD_TO_CART);
 		addToCartBT.setWidth("100%");
@@ -739,12 +733,13 @@ public class BillingComponent extends CustomComponent {
 				if (ADD_TO_CART.equals(addToCartBT.getCaption())) {
 					int serialNo = billableItemsTB.getContainerDataSource()
 							.size() + 1;
-					String productName = ((ProductVO<? extends Quantity>) productNameCB
-							.getValue()).getProductName();
-					Measure<Double, ? extends Quantity> productUnit = ((ProductVO<? extends Quantity>) productNameCB
-							.getValue()).getProductUnit();
-					String productDescription = ((ProductVO<? extends Quantity>) productNameCB
-							.getValue()).getProductDescription();
+					ProductVO<? extends Quantity> productVO = (ProductVO<? extends Quantity>) productNameCBCTR
+							.getItem(productNameCB.getValue()).getBean();
+					String productName = productVO.getProductName();
+					Measure<Double, ? extends Quantity> productUnit = productVO
+							.getProductUnit();
+					String productDescription = productVO
+							.getProductDescription();
 					Amount<Money> unitPrice = ((Amount<Money>) productRateCB
 							.getValue());
 					Measure<Double, ? extends Quantity> quantity = (Measure<Double, ? extends Quantity>) quantityCB
@@ -795,6 +790,39 @@ public class BillingComponent extends CustomComponent {
 		addToCartLayout.setExpandRatio(addToCartBT, 1f);
 
 		return addToCartLayout;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void updateAddToCartStatus() {
+		if (null != productNameCB.getValue()) {
+			productRateCB.setEnabled(true);
+			if (null != productRateCB.getValue()) {
+				quantityCB.setEnabled(true);
+				if (null != quantityCB.getValue()) {
+					logger.info("Cart BT enabled");
+					addToCartBT.setEnabled(true);
+					addToCartBT.focus();
+				} else {
+					logger.info("Cart BT disabled");
+					addToCartBT.setEnabled(false);
+				}
+			} else {
+				quantityCB.setValue(null);
+				quantityCB.setEnabled(false);
+				logger.info("Cart BT disabled");
+				addToCartBT.setEnabled(false);
+			}
+		} else {
+			BeanItemContainer<Amount<Money>> rateContainer = (BeanItemContainer<Amount<Money>>) productRateCB
+					.getContainerDataSource();
+			rateContainer.removeAllItems();
+			productRateCB.setValue(null);
+			quantityCB.setValue(null);
+			productRateCB.setEnabled(false);
+			quantityCB.setEnabled(false);
+			logger.info("Cart BT disabled and rate,quantity reset");
+			addToCartBT.setEnabled(false);
+		}
 	}
 
 	protected void displayModal(String prodName, Double quantity) {
@@ -959,6 +987,7 @@ public class BillingComponent extends CustomComponent {
 	}
 
 	protected void resetAddToCart() {
+		// productNameCB.unselect(productNameCB.getValue());
 		productNameCB.setValue(null);
 		productRateCB.setValue(null);
 		quantityCB.setValue(null);
