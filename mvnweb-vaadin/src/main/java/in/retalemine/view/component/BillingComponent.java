@@ -9,7 +9,6 @@ import in.retalemine.view.VO.ProductVO;
 import in.retalemine.view.converter.AmountConverter;
 import in.retalemine.view.ui.ProductQuantityCB;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -99,11 +99,8 @@ public class BillingComponent extends CustomComponent {
 	private ComboBox taxTypeCB = new ComboBox(null, taxPercentageMap.keySet());
 	private Label taxValueLB = new Label();
 
-	private ComboBox productNameCB = new ComboBox(
-			null,
-			Arrays.asList(new String[] { "Lux Sandal", "Hamam", "Cinthol Old" }));
-	private ComboBox productRateCB = new ComboBox(null,
-			Arrays.asList(new Double[] { 10.0, 20.0, 30.0, 40.0, 50.0 }));
+	private ComboBox productNameCB = new ComboBox();
+	private ComboBox productRateCB = new ComboBox();
 	private ProductQuantityCB quantityCB = new ProductQuantityCB();
 	private Button addToCartBT = new Button();
 	private Button billMeBT = new Button();
@@ -471,18 +468,21 @@ public class BillingComponent extends CustomComponent {
 					@Override
 					public void valueChange(ValueChangeEvent event) {
 						if (null != event.getProperty().getValue()) {
-							// TODO
-							// Item selectedItem = billableItemsTB.getItem(event
-							// .getProperty().getValue());
-							// productNameCB.setValue(selectedItem
-							// .getItemProperty(PRODUCT_DESC).getValue());
-							// productRateCB.setValue(selectedItem
-							// .getItemProperty(UNIT_RATE).getValue());
-							// quantityCB.setValue(selectedItem.getItemProperty(
-							// QUANTITY).getValue());
-							// addToCartBT.setCaption(UPDATE_CART);
-							// addToCartBT.setEnabled(false);
-							// billableItemsTB.focus();
+							Item selectedItem = billableItemsTB.getItem(event
+									.getProperty().getValue());
+							productNameCB.setValue(selectedItem
+									.getItemProperty(PID_PRODUCT_DESCRIPTION)
+									.getValue());
+							productNameCB.setEnabled(false);
+							productRateCB.setValue(selectedItem
+									.getItemProperty(PID_UNIT_RATE).getValue());
+							quantityCB.addItem(selectedItem.getItemProperty(
+									PID_QUANTITY).getValue());
+							quantityCB.setValue(selectedItem.getItemProperty(
+									PID_QUANTITY).getValue());
+							addToCartBT.setCaption(UPDATE_CART);
+							addToCartBT.setEnabled(false);
+							billableItemsTB.focus();
 						} else {
 							resetAddToCart();
 						}
@@ -521,6 +521,7 @@ public class BillingComponent extends CustomComponent {
 						billableItemsTB.getContainerDataSource().removeItem(
 								billableItemsTB.getValue());
 						reOrderBillingSNo();
+						resetAddToCart();
 					}
 				}
 			}
@@ -622,17 +623,6 @@ public class BillingComponent extends CustomComponent {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				if (null != event.getProperty().getValue()) {
-					logger.info("sme ** value {}", event.getProperty()
-							.getValue());
-					logger.info("sme ** type {}", event.getProperty().getType());
-					logger.info(" {}", productNameCB.getItem(event
-							.getProperty().getValue()));
-					logger.info(" {}", productNameCBCTR.getItem(event
-							.getProperty().getValue()));
-					logger.info(
-							" {}",
-							productNameCBCTR.getItem(
-									event.getProperty().getValue()).getBean());
 					ProductVO<? extends Quantity> productVO = (ProductVO<? extends Quantity>) productNameCBCTR
 							.getItem(event.getProperty().getValue()).getBean();
 					Notification.show("Value change event",
@@ -645,13 +635,10 @@ public class BillingComponent extends CustomComponent {
 					rateContainer.removeAllItems();
 					logger.info("price list {}", productVO.getUnitPrices());
 					if (null != productVO.getUnitPrices()) {
-						logger.info("inside price");
 						rateContainer.addAll(productVO.getUnitPrices());
 						productRateCB.select(rateContainer.firstItemId());
 					}
 					quantityCB.getContainerDataSource().removeAllItems();
-					logger.info("sme ** inside");
-					logger.info("sme ** inside {}", productVO);
 					quantityCB.setUnit(productVO.getProductUnit().getUnit());
 				}
 				updateAddToCartStatus();
@@ -751,21 +738,18 @@ public class BillingComponent extends CustomComponent {
 					billableItemsTB.setCurrentPageFirstItemId(bItem);
 					updateBillingPayments(bItem.getAmount(), 1);
 				} else {
-					// TODO
-					// Item selectedItemId = billableItemsTB
-					// .getItem(billableItemsTB.getValue());
-					// selectedItemId.getItemProperty(PRODUCT_DESC).setValue(
-					// productNameCB.getValue());
-					// selectedItemId.getItemProperty(UNIT_RATE).setValue(
-					// productRateCB.getValue());
-					// selectedItemId.getItemProperty(QUANTITY).setValue(
-					// quantityTF.getValue() + " "
-					// + qtySuffixCB.getValue());
-					// selectedItemId.getItemProperty(AMOUNT)
-					// .setValue(
-					// (Double) productRateCB.getValue()
-					// * Double.parseDouble(quantityTF
-					// .getValue()));
+					BillItemVO<?, ?> billItemVO = (BillItemVO<?, ?>) billableItemsTB
+							.getValue();
+					updateBillingPayments(billItemVO.getAmount(), -1);
+					Item selectedItem = billableItemsTB.getItem(billableItemsTB
+							.getValue());
+					selectedItem.getItemProperty(PID_UNIT_RATE).setValue(
+							productRateCB.getValue());
+					selectedItem.getItemProperty(PID_QUANTITY).setValue(
+							quantityCB.getValue());
+					selectedItem.getItemProperty(PID_AMOUNT).setValue(
+							BillItemVO.computeAmount(billItemVO));
+					updateBillingPayments(billItemVO.getAmount(), 1);
 				}
 				resetAddToCart();
 			}
@@ -991,6 +975,8 @@ public class BillingComponent extends CustomComponent {
 		productNameCB.setValue(null);
 		productRateCB.setValue(null);
 		quantityCB.setValue(null);
+
+		productNameCB.setEnabled(true);
 		productRateCB.setEnabled(false);
 		quantityCB.setEnabled(false);
 		addToCartBT.setEnabled(false);

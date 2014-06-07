@@ -80,38 +80,46 @@ public class BillItemVO<U extends Quantity, V extends Quantity> {
 			Integer serialNo, String productName,
 			Measure<Double, U> productUnit, String productDescription,
 			Amount<Money> unitPrice, Measure<Double, V> quantity) {
-		UnitConverter quantityToUnit = null;
 		BillItemVO<U, V> billItemVO = new BillItemVO<U, V>();
-		ConversionException cEx = null;
 		billItemVO.setSerialNo(serialNo);
 		billItemVO.setProductName(productName);
 		billItemVO.setProductUnit(productUnit);
 		billItemVO.setProductDescription(productDescription);
 		billItemVO.setUnitPrice(unitPrice);
 		billItemVO.setQuantity(quantity);
+		billItemVO.setAmount(computeAmount(billItemVO));
 
+		return billItemVO;
+	}
+
+	public static <U extends Quantity, V extends Quantity> Amount<Money> computeAmount(
+			BillItemVO<U, V> billItemVO) {
+		UnitConverter quantityToUnit = null;
+		ConversionException cEx = null;
 		try {
-			quantityToUnit = quantity.getUnit().getConverterTo(
-					productUnit.getUnit());
+			quantityToUnit = billItemVO.getQuantity().getUnit()
+					.getConverterTo(billItemVO.getProductUnit().getUnit());
 		} catch (ConversionException e) {
 			cEx = e;
 		}
 
 		if (null == quantityToUnit) {
-			if (RetaSI.PIECE.equals(quantity.getUnit())) {
-				billItemVO.setAmount(unitPrice.times(quantity.getValue()));
-			} else if (RetaSI.PACKET.equals(quantity.getUnit())) {
-				billItemVO.setAmount(unitPrice.times(quantity.getValue()));
-			} else if (RetaSI.DOZEN.equals(quantity.getUnit())) {
-				billItemVO.setAmount(unitPrice.times(quantity.getValue() * 12));
+			if (RetaSI.PIECE.equals(billItemVO.getQuantity().getUnit())) {
+				return billItemVO.getUnitPrice().times(
+						billItemVO.getQuantity().getValue());
+			} else if (RetaSI.PACKET.equals(billItemVO.getQuantity().getUnit())) {
+				return billItemVO.getUnitPrice().times(
+						billItemVO.getQuantity().getValue());
+			} else if (RetaSI.DOZEN.equals(billItemVO.getQuantity().getUnit())) {
+				return billItemVO.getUnitPrice().times(
+						billItemVO.getQuantity().getValue() * 12);
 			} else {
 				throw cEx;
 			}
 		} else {
-			billItemVO.setAmount(unitPrice.times(quantityToUnit
-					.convert(quantity.getValue()) / productUnit.getValue()));
+			return billItemVO.getUnitPrice().times(
+					quantityToUnit.convert(billItemVO.getQuantity().getValue())
+							/ billItemVO.getProductUnit().getValue());
 		}
-
-		return billItemVO;
 	}
 }

@@ -25,7 +25,7 @@
 * Noticeable size for 'bill me' button.
 * Include feature to cancel a bill.
 * Ensure that item quantity is not zero. ![][tick]
-* Include feature to edit an billItem in table.
+* Include feature to edit an billItem in table. ![][tick]
 * Include feature to enable cashier to input the received pay amount and display the pay back amount.
 * Container getting updated with duplicate values. Be it ProductNameCB container or the BillItemTB container.
 
