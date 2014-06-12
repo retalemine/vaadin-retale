@@ -325,13 +325,13 @@ public class BillingComponent extends CustomComponent {
 					displayCashModal();
 					break;
 				case PAY_CHEQUE:
+					displayChequeModal();
 					break;
 				case PAY_DELAYED:
 					break;
 				default:
 					break;
 				}
-				// TODO print the slip or save as draft
 				resetBillingComponent();
 			}
 		});
@@ -438,52 +438,29 @@ public class BillingComponent extends CustomComponent {
 	protected void displayCashModal() {
 		final Window sub = new Window("Cash Payment");
 
-		VerticalLayout vForm = new VerticalLayout();
-		HorizontalLayout hContent = new HorizontalLayout();
-		HorizontalLayout hActionLayout = new HorizontalLayout();
-		vForm.addComponent(hContent);
-		vForm.addComponent(hActionLayout);
-
-		Button saveDraft = new Button("Save Draft");
-		Button printBill = new Button("Print Bill");
-		hActionLayout.addComponent(saveDraft);
-		hActionLayout.addComponent(printBill);
-
-		VerticalLayout vLabel = new VerticalLayout();
-		VerticalLayout vDelimiter = new VerticalLayout();
-		VerticalLayout vData = new VerticalLayout();
-		hContent.addComponent(vLabel);
-		hContent.addComponent(vDelimiter);
-		hContent.addComponent(vData);
-
-		vLabel.addComponent(new Label("Billable Amount"));
-		vLabel.addComponent(new Label("Received Amount"));
-		vLabel.addComponent(new Label("Pay Back Amount"));
-
-		vDelimiter.addComponent(new Label(":"));
-		vDelimiter.addComponent(new Label(":"));
-		vDelimiter.addComponent(new Label(":"));
-
+		VerticalLayout contentVL = new VerticalLayout();
+		FormLayout cashFL = new FormLayout();
 		final TextField billAmt = new TextField();
 		final TextField amtReceived = new TextField();
 		final TextField payBackAmt = new TextField();
+		HorizontalLayout footerHL = new HorizontalLayout();
+		Button saveDraft = new Button();
+		Button printBill = new Button();
 
-		vData.addComponent(billAmt);
-		vData.addComponent(amtReceived);
-		vData.addComponent(payBackAmt);
-
-		billAmt.setReadOnly(true);
+		billAmt.setCaption("Billable Amount");
 		billAmt.setWidth("100%");
+		billAmt.setStyleName("v-textfield-align-right");
+		billAmt.setReadOnly(true);
 		billAmt.setConverter(new AmountConverter());
 		billAmt.setPropertyDataSource(totalValueLB.getPropertyDataSource());
-		billAmt.setStyleName("v-textfield-align-right");
 
+		amtReceived.setCaption("Received Amount");
 		amtReceived.setWidth("100%");
-		amtReceived.setImmediate(true);
+		amtReceived.setStyleName("v-textfield-align-right");
 		amtReceived.setConverter(new AmountConverter());
 		amtReceived.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
 				Amount.valueOf(0.0, Rupee.INR)));
-		amtReceived.setStyleName("v-textfield-align-right");
+		amtReceived.setImmediate(true);
 		amtReceived.addFocusListener(new FocusListener() {
 
 			private static final long serialVersionUID = -5687359956231689993L;
@@ -495,7 +472,7 @@ public class BillingComponent extends CustomComponent {
 		});
 		amtReceived.addValueChangeListener(new ValueChangeListener() {
 
-			private static final long serialVersionUID = -8402185467495004175L;
+			private static final long serialVersionUID = 5355490604466827525L;
 
 			@SuppressWarnings("unchecked")
 			@Override
@@ -515,32 +492,36 @@ public class BillingComponent extends CustomComponent {
 			}
 		});
 
-		payBackAmt.setReadOnly(true);
+		payBackAmt.setCaption("Payback Amount");
 		payBackAmt.setWidth("100%");
+		payBackAmt.setStyleName("v-textfield-align-right");
+		payBackAmt.setReadOnly(true);
 		payBackAmt.setConverter(new AmountConverter());
 		payBackAmt.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
 				Amount.valueOf(0.0, Rupee.INR)));
-		payBackAmt.setStyleName("v-textfield-align-right");
 
+		saveDraft.setCaption("Save Draft");
 		saveDraft.setSizeUndefined();
 		saveDraft.setImmediate(true);
 		saveDraft.addClickListener(new ClickListener() {
 
-			private static final long serialVersionUID = 435953256825703393L;
+			private static final long serialVersionUID = 3808358760477618923L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO save the bill as draft and don't print it
 				// TODO do provision to save the draft and make a print also
+				// TODO what will be the payment mode defaulted to?
 				sub.close();
 			}
 		});
 
+		printBill.setCaption("Print Bill");
 		printBill.setSizeUndefined();
 		printBill.setImmediate(true);
 		printBill.addClickListener(new ClickListener() {
 
-			private static final long serialVersionUID = 4654572855371473565L;
+			private static final long serialVersionUID = -779726628843991503L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -549,50 +530,166 @@ public class BillingComponent extends CustomComponent {
 			}
 		});
 
-		vData.setImmediate(false);
-		vData.setWidth("100%");
-		vData.setMargin(false);
-		vData.setSpacing(true);
+		contentVL.addComponent(cashFL);
+		contentVL.addComponent(footerHL);
+		contentVL.setComponentAlignment(footerHL, Alignment.MIDDLE_RIGHT);
 
-		vDelimiter.setImmediate(false);
-		vDelimiter.setWidth("100%");
-		vDelimiter.setMargin(false);
-		vDelimiter.setSpacing(true);
+		cashFL.addComponent(billAmt);
+		cashFL.addComponent(amtReceived);
+		cashFL.addComponent(payBackAmt);
 
-		vLabel.setImmediate(false);
-		vLabel.setWidth("100%");
-		vLabel.setMargin(false);
-		vLabel.setSpacing(true);
+		footerHL.addComponent(saveDraft);
+		footerHL.addComponent(printBill);
+		footerHL.setComponentAlignment(saveDraft, Alignment.MIDDLE_RIGHT);
+		footerHL.setComponentAlignment(printBill, Alignment.MIDDLE_RIGHT);
 
-		hContent.setImmediate(false);
-		hContent.setWidth("100%");
-		hContent.setMargin(false);
-		hContent.setSpacing(true);
-		hContent.setComponentAlignment(vLabel, Alignment.MIDDLE_LEFT);
-		hContent.setComponentAlignment(vDelimiter, Alignment.MIDDLE_RIGHT);
-		hContent.setComponentAlignment(vData, Alignment.MIDDLE_LEFT);
-		hContent.setExpandRatio(vLabel, 5.0f);
-		hContent.setExpandRatio(vDelimiter, 1.0f);
-		hContent.setExpandRatio(vData, 5.0f);
+		cashFL.setImmediate(false);
+		cashFL.setWidth("100%");
+		cashFL.setMargin(false);
+		cashFL.setSpacing(true);
 
-		hActionLayout.setImmediate(false);
-		hActionLayout.setWidth("100%");
-		hActionLayout.setMargin(false);
-		hActionLayout.setSpacing(true);
-		hActionLayout.setComponentAlignment(saveDraft, Alignment.MIDDLE_LEFT);
-		hActionLayout.setComponentAlignment(printBill, Alignment.MIDDLE_RIGHT);
+		footerHL.setImmediate(false);
+		footerHL.setSizeUndefined();
+		footerHL.setMargin(false);
+		footerHL.setSpacing(true);
 
-		vForm.setImmediate(false);
-		vForm.setWidth("100%");
-		vForm.setMargin(true);
-		vForm.setSpacing(true);
+		contentVL.setImmediate(false);
+		contentVL.setWidth("100%");
+		contentVL.setMargin(true);
+		contentVL.setSpacing(true);
 
-		sub.setContent(vForm);
+		sub.setContent(contentVL);
 		sub.setModal(true);
 		sub.setResizable(false);
 		sub.addActionHandler(new Handler() {
 
-			private static final long serialVersionUID = 956060108467504516L;
+			private static final long serialVersionUID = -5095434104534198849L;
+			Action actionEsc = new ShortcutAction("Close Modal Box",
+					ShortcutAction.KeyCode.ESCAPE, null);
+
+			@Override
+			public void handleAction(Action action, Object sender, Object target) {
+				if (sender instanceof Window) {
+					if (action == actionEsc) {
+						((Window) sender).close();
+					}
+				}
+			}
+
+			@Override
+			public Action[] getActions(Object target, Object sender) {
+				return new Action[] { actionEsc };
+			}
+		});
+
+		UI.getCurrent().addWindow(sub);
+
+	}
+
+	protected void displayChequeModal() {
+		final Window sub = new Window("Cheque Payment");
+
+		FormLayout chequeFL = new FormLayout();
+		TextField bankName = new TextField();
+		TextField chequeNumber = new TextField();
+		final TextField billAmt = new TextField();
+		final TextField amtReceived = new TextField();
+		final TextField payBackAmt = new TextField();
+		Button printBill = new Button();
+
+		bankName.setCaption("Bank Name");
+		bankName.setWidth("100%");
+		bankName.setStyleName("v-textfield-align-right");
+
+		chequeNumber.setCaption("Cheque Number#");
+		chequeNumber.setWidth("100%");
+		chequeNumber.setStyleName("v-textfield-align-right");
+
+		billAmt.setCaption("Billable Amount");
+		billAmt.setWidth("100%");
+		billAmt.setStyleName("v-textfield-align-right");
+		billAmt.setReadOnly(true);
+		billAmt.setConverter(new AmountConverter());
+		billAmt.setPropertyDataSource(totalValueLB.getPropertyDataSource());
+
+		amtReceived.setCaption("Received Amount");
+		amtReceived.setWidth("100%");
+		amtReceived.setStyleName("v-textfield-align-right");
+		amtReceived.setConverter(new AmountConverter());
+		amtReceived.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
+				Amount.valueOf(0.0, Rupee.INR)));
+		amtReceived.setImmediate(true);
+		amtReceived.addFocusListener(new FocusListener() {
+
+			private static final long serialVersionUID = 3216033202874236783L;
+
+			@Override
+			public void focus(FocusEvent event) {
+				((TextField) event.getComponent()).setValue("");
+			}
+		});
+		amtReceived.addValueChangeListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = 7908458548102263922L;
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if (null != event.getProperty().getValue()
+						&& !((String) event.getProperty().getValue()).isEmpty()) {
+					payBackAmt
+							.getPropertyDataSource()
+							.setValue(
+									((Amount<Money>) amtReceived
+											.getPropertyDataSource().getValue())
+											.minus((Amount<Money>) billAmt
+													.getPropertyDataSource()
+													.getValue()));
+				}
+
+			}
+		});
+
+		payBackAmt.setCaption("Payback Amount");
+		payBackAmt.setWidth("100%");
+		payBackAmt.setStyleName("v-textfield-align-right");
+		payBackAmt.setReadOnly(true);
+		payBackAmt.setConverter(new AmountConverter());
+		payBackAmt.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
+				Amount.valueOf(0.0, Rupee.INR)));
+
+		printBill.setCaption("Print Bill");
+		printBill.setSizeUndefined();
+		printBill.setImmediate(true);
+		printBill.addClickListener(new ClickListener() {
+
+			private static final long serialVersionUID = 535739329405714802L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO save the bill and print it
+				sub.close();
+			}
+		});
+
+		chequeFL.addComponent(bankName);
+		chequeFL.addComponent(chequeNumber);
+		chequeFL.addComponent(billAmt);
+		chequeFL.addComponent(amtReceived);
+		chequeFL.addComponent(payBackAmt);
+		chequeFL.addComponent(printBill);
+
+		chequeFL.setImmediate(false);
+		chequeFL.setWidth("100%");
+		chequeFL.setMargin(true);
+		chequeFL.setSpacing(true);
+
+		sub.setContent(chequeFL);
+		sub.setModal(true);
+		sub.setResizable(false);
+		sub.addActionHandler(new Handler() {
+
+			private static final long serialVersionUID = 5855458178562827022L;
 			Action actionEsc = new ShortcutAction("Close Modal Box",
 					ShortcutAction.KeyCode.ESCAPE, null);
 
