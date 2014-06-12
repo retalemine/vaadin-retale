@@ -17,6 +17,7 @@ import java.util.List;
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 
+import org.jscience.economics.money.Currency;
 import org.jscience.economics.money.Money;
 import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.converter.StringToDoubleConverter;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
+import com.vaadin.event.FieldEvents.FocusEvent;
+import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.AbsoluteLayout;
@@ -78,8 +81,6 @@ public class BillingComponent extends CustomComponent {
 
 	private VerticalLayout mainLayout;
 
-	private Label billNoLB = new Label();
-	private Integer billNoSeq = 1001;
 	private DateField billDateDF = new DateField();
 
 	private Table billableItemsTB = new Table();
@@ -104,6 +105,9 @@ public class BillingComponent extends CustomComponent {
 	private ProductQuantityCB quantityCB = new ProductQuantityCB();
 	private Button addToCartBT = new Button();
 	private Button billMeBT = new Button();
+	private Button resetBT = new Button();
+	private OptionGroup payModeOG = new OptionGroup();
+	private CheckBox deliveryChB = new CheckBox();
 
 	private TextField cusNameTF = new TextField();
 	private TextField cusContactNoTF = new TextField();
@@ -136,6 +140,7 @@ public class BillingComponent extends CustomComponent {
 	private final String PROMPT_PRODUCT_RATE = "Rate";
 	private final String HOME_DELIVERY = "Home delivery";
 	private final String BILL_ME = "Bill Me";
+	private final String RESET = "Reset";
 	private final String PAY_CASH = "Cash";
 	private final String PAY_CHEQUE = "Cheque";
 	private final String PAY_DELAYED = "Delayed";
@@ -146,6 +151,10 @@ public class BillingComponent extends CustomComponent {
 
 	public BillingComponent() {
 		setCompositionRoot(buildMainLayout());
+	}
+
+	public static Currency getGlobalCurrency() {
+		return Rupee.INR;
 	}
 
 	private VerticalLayout buildMainLayout() {
@@ -174,15 +183,15 @@ public class BillingComponent extends CustomComponent {
 	}
 
 	private Component buildBillingFooter() {
-		GridLayout footerGrid = new GridLayout(3, 1);
+		GridLayout footerGrid = new GridLayout(5, 1);
 
 		footerGrid.setImmediate(false);
 		footerGrid.setWidth("100%");
 		footerGrid.setMargin(false);
 		footerGrid.setSpacing(true);
 
-		footerGrid.addComponent(buildCustomerProfile(), 0, 0, 1, 0);
-		footerGrid.addComponent(buildBillingPayments(), 2, 0);
+		footerGrid.addComponent(buildCustomerProfile(), 0, 0, 2, 0);
+		footerGrid.addComponent(buildBillingPayments(), 3, 0, 4, 0);
 
 		return footerGrid;
 	}
@@ -193,14 +202,15 @@ public class BillingComponent extends CustomComponent {
 		HorizontalLayout taxLayout = new HorizontalLayout();
 		HorizontalLayout totalLayout = new HorizontalLayout();
 		Panel paymentModeLayout = new Panel("Payment Mode");
-		HorizontalLayout deliveryBillMeLayout = new HorizontalLayout();
+		VerticalLayout paymentDeliveryLayout = new VerticalLayout();
+		VerticalLayout BillMeLayout = new VerticalLayout();
+		HorizontalLayout paymentDeliveryBillMeLayout = new HorizontalLayout();
+
 		Label subTotalLB = new Label();
 		Label subTotalColonLB = new Label();
 		Label totalLB = new Label();
 		Label totalColonLB = new Label();
 		Label taxColonLB = new Label();
-		final OptionGroup payModeOG = new OptionGroup();
-		final CheckBox deliveryChB = new CheckBox(HOME_DELIVERY);
 
 		subTotalLB.setValue(SUB_TOTAL);
 		subTotalValueLB.setConverter(new AmountConverter());
@@ -283,6 +293,7 @@ public class BillingComponent extends CustomComponent {
 			}
 		});
 
+		deliveryChB.setCaption(HOME_DELIVERY);
 		deliveryChB.setImmediate(true);
 		deliveryChB.addValueChangeListener(new Property.ValueChangeListener() {
 
@@ -298,6 +309,7 @@ public class BillingComponent extends CustomComponent {
 		});
 
 		billMeBT.setCaption(BILL_ME);
+		billMeBT.setWidth("100%");
 		billMeBT.setEnabled(false);
 		billMeBT.setImmediate(true);
 		billMeBT.addClickListener(new Button.ClickListener() {
@@ -306,21 +318,42 @@ public class BillingComponent extends CustomComponent {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				billNoLB.setValue(String.valueOf(billNoSeq++));
-				billDateDF.setValue(new Date());
-				resetAddToCart();
-				billableItemsTB.getContainerDataSource().removeAllItems();
-				updateBillingPayments(null, 0);
-				payModeOG.select(PAY_CASH);
-				deliveryChB.setValue(false);
+				// TODO validate mandatory fields
+				// TODO based on payment mode respective modal box
+				switch ((String) payModeOG.getValue()) {
+				case PAY_CASH:
+					displayCashModal();
+					break;
+				case PAY_CHEQUE:
+					break;
+				case PAY_DELAYED:
+					break;
+				default:
+					break;
+				}
+				// TODO print the slip or save as draft
+				resetBillingComponent();
+			}
+		});
+
+		resetBT.setCaption(RESET);
+		resetBT.setWidth("100%");
+		resetBT.setEnabled(false);
+		resetBT.setImmediate(true);
+		resetBT.addClickListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = 9118398197062156254L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				resetBillingComponent();
 			}
 		});
 
 		paymentLayout.addComponent(subTotalLayout);
 		paymentLayout.addComponent(taxLayout);
 		paymentLayout.addComponent(totalLayout);
-		paymentLayout.addComponent(paymentModeLayout);
-		paymentLayout.addComponent(deliveryBillMeLayout);
+		paymentLayout.addComponent(paymentDeliveryBillMeLayout);
 
 		subTotalLayout.addComponent(subTotalLB);
 		subTotalLayout.addComponent(subTotalColonLB);
@@ -334,10 +367,16 @@ public class BillingComponent extends CustomComponent {
 		totalLayout.addComponent(totalColonLB);
 		totalLayout.addComponent(totalValueLB);
 
+		paymentDeliveryBillMeLayout.addComponent(paymentDeliveryLayout);
+		paymentDeliveryBillMeLayout.addComponent(BillMeLayout);
+
+		paymentDeliveryLayout.addComponent(paymentModeLayout);
+		paymentDeliveryLayout.addComponent(deliveryChB);
+
 		paymentModeLayout.setContent(payModeOG);
 
-		deliveryBillMeLayout.addComponent(deliveryChB);
-		deliveryBillMeLayout.addComponent(billMeBT);
+		BillMeLayout.addComponent(billMeBT);
+		BillMeLayout.addComponent(resetBT);
 
 		subTotalLayout.setComponentAlignment(subTotalLB, Alignment.BOTTOM_LEFT);
 		subTotalLayout.setComponentAlignment(subTotalColonLB,
@@ -366,18 +405,27 @@ public class BillingComponent extends CustomComponent {
 		totalLayout.setMargin(false);
 		totalLayout.setSpacing(true);
 
+		paymentDeliveryLayout.setImmediate(false);
+		paymentDeliveryLayout.setWidth("100%");
+		paymentDeliveryLayout.setMargin(false);
+		paymentDeliveryLayout.setSpacing(true);
+
 		paymentModeLayout.setStyleName(Runo.PANEL_LIGHT);
 		paymentModeLayout.setImmediate(false);
 		paymentModeLayout.setWidth("100%");
 
-		deliveryBillMeLayout.setComponentAlignment(deliveryChB,
-				Alignment.MIDDLE_LEFT);
-		deliveryBillMeLayout.setComponentAlignment(billMeBT,
-				Alignment.MIDDLE_RIGHT);
-		deliveryBillMeLayout.setImmediate(false);
-		deliveryBillMeLayout.setWidth("100%");
-		deliveryBillMeLayout.setMargin(false);
-		deliveryBillMeLayout.setSpacing(true);
+		BillMeLayout.setImmediate(false);
+		BillMeLayout.setWidth("100%");
+		BillMeLayout.setHeight("100%");
+		BillMeLayout.setMargin(false);
+		BillMeLayout.setSpacing(true);
+
+		paymentDeliveryBillMeLayout.setImmediate(false);
+		paymentDeliveryBillMeLayout.setWidth("100%");
+		paymentDeliveryBillMeLayout.setMargin(false);
+		paymentDeliveryBillMeLayout.setSpacing(true);
+		paymentDeliveryBillMeLayout.setExpandRatio(paymentDeliveryLayout, 2.0f);
+		paymentDeliveryBillMeLayout.setExpandRatio(BillMeLayout, 1.0f);
 
 		paymentLayout.setImmediate(false);
 		paymentLayout.setWidth("100%");
@@ -385,6 +433,194 @@ public class BillingComponent extends CustomComponent {
 		paymentLayout.setSpacing(true);
 
 		return paymentLayout;
+	}
+
+	protected void displayCashModal() {
+		final Window sub = new Window("Cash Payment");
+
+		VerticalLayout vForm = new VerticalLayout();
+		HorizontalLayout hContent = new HorizontalLayout();
+		HorizontalLayout hActionLayout = new HorizontalLayout();
+		vForm.addComponent(hContent);
+		vForm.addComponent(hActionLayout);
+
+		Button saveDraft = new Button("Save Draft");
+		Button printBill = new Button("Print Bill");
+		hActionLayout.addComponent(saveDraft);
+		hActionLayout.addComponent(printBill);
+
+		VerticalLayout vLabel = new VerticalLayout();
+		VerticalLayout vDelimiter = new VerticalLayout();
+		VerticalLayout vData = new VerticalLayout();
+		hContent.addComponent(vLabel);
+		hContent.addComponent(vDelimiter);
+		hContent.addComponent(vData);
+
+		vLabel.addComponent(new Label("Billable Amount"));
+		vLabel.addComponent(new Label("Received Amount"));
+		vLabel.addComponent(new Label("Pay Back Amount"));
+
+		vDelimiter.addComponent(new Label(":"));
+		vDelimiter.addComponent(new Label(":"));
+		vDelimiter.addComponent(new Label(":"));
+
+		final TextField billAmt = new TextField();
+		final TextField amtReceived = new TextField();
+		final TextField payBackAmt = new TextField();
+
+		vData.addComponent(billAmt);
+		vData.addComponent(amtReceived);
+		vData.addComponent(payBackAmt);
+
+		billAmt.setReadOnly(true);
+		billAmt.setWidth("100%");
+		billAmt.setConverter(new AmountConverter());
+		billAmt.setPropertyDataSource(totalValueLB.getPropertyDataSource());
+		billAmt.setStyleName("v-textfield-align-right");
+
+		amtReceived.setWidth("100%");
+		amtReceived.setImmediate(true);
+		amtReceived.setConverter(new AmountConverter());
+		amtReceived.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
+				Amount.valueOf(0.0, Rupee.INR)));
+		amtReceived.setStyleName("v-textfield-align-right");
+		amtReceived.addFocusListener(new FocusListener() {
+
+			private static final long serialVersionUID = -5687359956231689993L;
+
+			@Override
+			public void focus(FocusEvent event) {
+				((TextField) event.getComponent()).setValue("");
+			}
+		});
+		amtReceived.addValueChangeListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = -8402185467495004175L;
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if (null != event.getProperty().getValue()
+						&& !((String) event.getProperty().getValue()).isEmpty()) {
+					payBackAmt
+							.getPropertyDataSource()
+							.setValue(
+									((Amount<Money>) amtReceived
+											.getPropertyDataSource().getValue())
+											.minus((Amount<Money>) billAmt
+													.getPropertyDataSource()
+													.getValue()));
+				}
+
+			}
+		});
+
+		payBackAmt.setReadOnly(true);
+		payBackAmt.setWidth("100%");
+		payBackAmt.setConverter(new AmountConverter());
+		payBackAmt.setPropertyDataSource(new ObjectProperty<Amount<Money>>(
+				Amount.valueOf(0.0, Rupee.INR)));
+		payBackAmt.setStyleName("v-textfield-align-right");
+
+		saveDraft.setSizeUndefined();
+		saveDraft.setImmediate(true);
+		saveDraft.addClickListener(new ClickListener() {
+
+			private static final long serialVersionUID = 435953256825703393L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO save the bill as draft and don't print it
+				// TODO do provision to save the draft and make a print also
+				sub.close();
+			}
+		});
+
+		printBill.setSizeUndefined();
+		printBill.setImmediate(true);
+		printBill.addClickListener(new ClickListener() {
+
+			private static final long serialVersionUID = 4654572855371473565L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO save the bill and print it
+				sub.close();
+			}
+		});
+
+		vData.setImmediate(false);
+		vData.setWidth("100%");
+		vData.setMargin(false);
+		vData.setSpacing(true);
+
+		vDelimiter.setImmediate(false);
+		vDelimiter.setWidth("100%");
+		vDelimiter.setMargin(false);
+		vDelimiter.setSpacing(true);
+
+		vLabel.setImmediate(false);
+		vLabel.setWidth("100%");
+		vLabel.setMargin(false);
+		vLabel.setSpacing(true);
+
+		hContent.setImmediate(false);
+		hContent.setWidth("100%");
+		hContent.setMargin(false);
+		hContent.setSpacing(true);
+		hContent.setComponentAlignment(vLabel, Alignment.MIDDLE_LEFT);
+		hContent.setComponentAlignment(vDelimiter, Alignment.MIDDLE_RIGHT);
+		hContent.setComponentAlignment(vData, Alignment.MIDDLE_LEFT);
+		hContent.setExpandRatio(vLabel, 5.0f);
+		hContent.setExpandRatio(vDelimiter, 1.0f);
+		hContent.setExpandRatio(vData, 5.0f);
+
+		hActionLayout.setImmediate(false);
+		hActionLayout.setWidth("100%");
+		hActionLayout.setMargin(false);
+		hActionLayout.setSpacing(true);
+		hActionLayout.setComponentAlignment(saveDraft, Alignment.MIDDLE_LEFT);
+		hActionLayout.setComponentAlignment(printBill, Alignment.MIDDLE_RIGHT);
+
+		vForm.setImmediate(false);
+		vForm.setWidth("100%");
+		vForm.setMargin(true);
+		vForm.setSpacing(true);
+
+		sub.setContent(vForm);
+		sub.setModal(true);
+		sub.setResizable(false);
+		sub.addActionHandler(new Handler() {
+
+			private static final long serialVersionUID = 956060108467504516L;
+			Action actionEsc = new ShortcutAction("Close Modal Box",
+					ShortcutAction.KeyCode.ESCAPE, null);
+
+			@Override
+			public void handleAction(Action action, Object sender, Object target) {
+				if (sender instanceof Window) {
+					if (action == actionEsc) {
+						((Window) sender).close();
+					}
+				}
+			}
+
+			@Override
+			public Action[] getActions(Object target, Object sender) {
+				return new Action[] { actionEsc };
+			}
+		});
+
+		UI.getCurrent().addWindow(sub);
+	}
+
+	protected void resetBillingComponent() {
+		billDateDF.setValue(new Date());
+		resetAddToCart();
+		billableItemsTB.getContainerDataSource().removeAllItems();
+		updateBillingPayments(null, 0);
+		payModeOG.select(PAY_CASH);
+		deliveryChB.setValue(false);
 	}
 
 	protected void mandateCustomerDetails(boolean isRequired) {
@@ -498,8 +734,10 @@ public class BillingComponent extends CustomComponent {
 					public void containerItemSetChange(ItemSetChangeEvent event) {
 						if (event.getContainer().size() > 0) {
 							billMeBT.setEnabled(true);
+							resetBT.setEnabled(true);
 						} else {
 							billMeBT.setEnabled(false);
+							resetBT.setEnabled(false);
 						}
 					}
 				});
