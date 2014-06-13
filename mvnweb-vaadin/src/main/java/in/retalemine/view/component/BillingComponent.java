@@ -328,11 +328,11 @@ public class BillingComponent extends CustomComponent {
 					displayChequeModal();
 					break;
 				case PAY_DELAYED:
+					displayDelayedModal();
 					break;
 				default:
 					break;
 				}
-				resetBillingComponent();
 			}
 		});
 
@@ -377,6 +377,8 @@ public class BillingComponent extends CustomComponent {
 
 		BillMeLayout.addComponent(billMeBT);
 		BillMeLayout.addComponent(resetBT);
+		BillMeLayout.setComponentAlignment(billMeBT, Alignment.BOTTOM_RIGHT);
+		BillMeLayout.setComponentAlignment(resetBT, Alignment.BOTTOM_RIGHT);
 
 		subTotalLayout.setComponentAlignment(subTotalLB, Alignment.BOTTOM_LEFT);
 		subTotalLayout.setComponentAlignment(subTotalColonLB,
@@ -513,6 +515,7 @@ public class BillingComponent extends CustomComponent {
 				// TODO do provision to save the draft and make a print also
 				// TODO what will be the payment mode defaulted to?
 				sub.close();
+				resetBillingComponent();
 			}
 		});
 
@@ -527,6 +530,7 @@ public class BillingComponent extends CustomComponent {
 			public void buttonClick(ClickEvent event) {
 				// TODO save the bill and print it
 				sub.close();
+				resetBillingComponent();
 			}
 		});
 
@@ -669,6 +673,7 @@ public class BillingComponent extends CustomComponent {
 			public void buttonClick(ClickEvent event) {
 				// TODO save the bill and print it
 				sub.close();
+				resetBillingComponent();
 			}
 		});
 
@@ -690,6 +695,89 @@ public class BillingComponent extends CustomComponent {
 		sub.addActionHandler(new Handler() {
 
 			private static final long serialVersionUID = 5855458178562827022L;
+			Action actionEsc = new ShortcutAction("Close Modal Box",
+					ShortcutAction.KeyCode.ESCAPE, null);
+
+			@Override
+			public void handleAction(Action action, Object sender, Object target) {
+				if (sender instanceof Window) {
+					if (action == actionEsc) {
+						((Window) sender).close();
+					}
+				}
+			}
+
+			@Override
+			public Action[] getActions(Object target, Object sender) {
+				return new Action[] { actionEsc };
+			}
+		});
+
+		UI.getCurrent().addWindow(sub);
+	}
+
+	protected void displayDelayedModal() {
+		final Window sub = new Window("Delayed Payment");
+
+		FormLayout delayedFL = new FormLayout();
+		final TextField billAmt = new TextField();
+		final DateField payableDate = new DateField();
+		Date currentDate = null;
+		Button printBill = new Button();
+
+		billAmt.setCaption("Billable Amount");
+		billAmt.setWidth("100%");
+		billAmt.setReadOnly(true);
+		billAmt.setConverter(new AmountConverter());
+		billAmt.setPropertyDataSource(totalValueLB.getPropertyDataSource());
+
+		payableDate.setCaption("Payable Date");
+		payableDate.setWidth("100%");
+		payableDate.setDateFormat("dd-MMM-yyyy (E)");
+		payableDate.setImmediate(true);
+		payableDate.setRangeStart((currentDate = new Date()));
+		payableDate.setRangeEnd(new Date(currentDate.getTime() + 2592000000L));
+		payableDate.addValueChangeListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = -5135380705893758953L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if (null != event.getProperty()) {
+				}
+			}
+		});
+
+		printBill.setCaption("Print Bill");
+		printBill.setSizeUndefined();
+		printBill.setImmediate(true);
+		printBill.addClickListener(new ClickListener() {
+
+			private static final long serialVersionUID = 9049648993181705643L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO save the bill and print it
+				sub.close();
+				resetBillingComponent();
+			}
+		});
+
+		delayedFL.addComponent(billAmt);
+		delayedFL.addComponent(payableDate);
+		delayedFL.addComponent(printBill);
+
+		delayedFL.setImmediate(false);
+		delayedFL.setWidth("100%");
+		delayedFL.setMargin(true);
+		delayedFL.setSpacing(true);
+
+		sub.setContent(delayedFL);
+		sub.setModal(true);
+		sub.setResizable(false);
+		sub.addActionHandler(new Handler() {
+
+			private static final long serialVersionUID = 5779658659989871382L;
 			Action actionEsc = new ShortcutAction("Close Modal Box",
 					ShortcutAction.KeyCode.ESCAPE, null);
 
