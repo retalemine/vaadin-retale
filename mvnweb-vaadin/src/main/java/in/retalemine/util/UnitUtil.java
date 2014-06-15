@@ -16,7 +16,7 @@ public class UnitUtil {
 			add(new HashSet<String>(Arrays.asList("kg", "g")));
 			add(new HashSet<String>(Arrays.asList("L", "mL")));
 			add(new HashSet<String>(Arrays.asList("m", "ft", "in")));
-			add(new HashSet<String>(Arrays.asList("pcs", "pkt", "dz")));
+			add(new HashSet<String>(Arrays.asList("pcs", "dz"))); // "pkt"
 			// pcs,pkt,dz should be at last
 		}
 	};
@@ -42,8 +42,8 @@ public class UnitUtil {
 			put("pc", "pcs");
 			put("piece", "pcs");
 			put("pieces", "pcs");
-			put("pkt", "pkt");
-			put("packet", "pkt");
+			// put("pkt", "pkt");
+			// put("packet", "pkt");
 			put("dz", "dz");
 			put("dozen", "dz");
 			put("dozens", "dz");

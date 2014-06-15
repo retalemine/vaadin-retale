@@ -13,9 +13,12 @@
   * Dynamic suggestion of quantity in selected valid unit ![][tick]
   * Dynamic suggestion of quantity in various valid unit
   * Dynamic suggestion of quantity in various valid unit via JS without server side interaction
-  * Add to cart
-  * units in pkt and pcs ![][tick]
+  * Add to cart ![][tick]
+  * Update cart ![][tick]
+  * units in dz and pcs ![][tick]
+  * units in pkt
 * Code billing services using mongoDB
+* Print bill
 * Test Cases
 
 ####Known Issues and Enhancements:

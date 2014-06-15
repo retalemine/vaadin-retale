@@ -107,10 +107,13 @@ public class BillItemVO<U extends Quantity, V extends Quantity> {
 			if (RetaSI.PIECE.equals(billItemVO.getQuantity().getUnit())) {
 				return billItemVO.getUnitPrice().times(
 						billItemVO.getQuantity().getValue());
-			} else if (RetaSI.PACKET.equals(billItemVO.getQuantity().getUnit())) {
-				return billItemVO.getUnitPrice().times(
-						billItemVO.getQuantity().getValue());
-			} else if (RetaSI.DOZEN.equals(billItemVO.getQuantity().getUnit())) {
+			}
+			// else if
+			// (RetaSI.PACKET.equals(billItemVO.getQuantity().getUnit())) {
+			// return billItemVO.getUnitPrice().times(
+			// billItemVO.getQuantity().getValue());
+			// }
+			else if (RetaSI.DOZEN.equals(billItemVO.getQuantity().getUnit())) {
 				return billItemVO.getUnitPrice().times(
 						billItemVO.getQuantity().getValue() * 12);
 			} else {
