@@ -9,10 +9,13 @@ import in.retalemine.view.VO.ProductVO;
 import in.retalemine.view.converter.AmountConverter;
 import in.retalemine.view.ui.ProductQuantityCB;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
@@ -38,7 +41,10 @@ import com.vaadin.event.Action.Handler;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.server.Page;
+import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractSelect.NewItemHandler;
@@ -82,6 +88,8 @@ public class BillingComponent extends CustomComponent {
 	private VerticalLayout mainLayout;
 
 	private DateField billDateDF = new DateField();
+	private WebBrowser webBrowser = null;
+	private SimpleTimeZone clientTZ = null;
 
 	private Table billableItemsTB = new Table();
 
@@ -320,18 +328,15 @@ public class BillingComponent extends CustomComponent {
 			public void buttonClick(ClickEvent event) {
 				// TODO validate mandatory fields
 				// TODO based on payment mode respective modal box
-				switch ((String) payModeOG.getValue()) {
-				case PAY_CASH:
+				if (PAY_CASH.equals(payModeOG.getValue())) {
 					displayCashModal();
-					break;
-				case PAY_CHEQUE:
+				} else if (PAY_CHEQUE.equals(payModeOG.getValue())) {
 					displayChequeModal();
-					break;
-				case PAY_DELAYED:
+				} else if (PAY_DELAYED.equals(payModeOG.getValue())) {
 					displayDelayedModal();
-					break;
-				default:
-					break;
+				} else {
+					Notification.show("Bill Me", "Invalid Payment Mode",
+							Type.TRAY_NOTIFICATION);
 				}
 			}
 		});
@@ -418,7 +423,7 @@ public class BillingComponent extends CustomComponent {
 
 		BillMeLayout.setImmediate(false);
 		BillMeLayout.setWidth("100%");
-		BillMeLayout.setHeight("100%");
+		BillMeLayout.setHeight("");
 		BillMeLayout.setMargin(false);
 		BillMeLayout.setSpacing(true);
 
@@ -428,6 +433,8 @@ public class BillingComponent extends CustomComponent {
 		paymentDeliveryBillMeLayout.setSpacing(true);
 		paymentDeliveryBillMeLayout.setExpandRatio(paymentDeliveryLayout, 2.0f);
 		paymentDeliveryBillMeLayout.setExpandRatio(BillMeLayout, 1.0f);
+		paymentDeliveryBillMeLayout.setComponentAlignment(BillMeLayout,
+				Alignment.BOTTOM_RIGHT);
 
 		paymentLayout.setImmediate(false);
 		paymentLayout.setWidth("100%");
@@ -800,7 +807,7 @@ public class BillingComponent extends CustomComponent {
 	}
 
 	protected void resetBillingComponent() {
-		billDateDF.setValue(new Date());
+		billDateDF.setValue(webBrowser.getCurrentDate());
 		resetAddToCart();
 		billableItemsTB.getContainerDataSource().removeAllItems();
 		updateBillingPayments(null, 0);
@@ -830,6 +837,52 @@ public class BillingComponent extends CustomComponent {
 		customerForm.addComponent(cusNameTF);
 		customerForm.addComponent(cusContactNoTF);
 		customerForm.addComponent(cusAddressTA);
+
+		customerForm.addComponent(new Label("Browser Date"));
+		customerForm.addComponent(new Label(webBrowser.getCurrentDate()
+				.toString()));
+
+		customerForm
+				.addComponent(new Label("Browser Date set to localtimezone"));
+		SimpleTimeZone timezone = new SimpleTimeZone(
+				webBrowser.getTimezoneOffset(), "");
+		DateFormat format = DateFormat.getDateTimeInstance();
+		format.setTimeZone(timezone);
+		customerForm.addComponent(new Label(format.format(webBrowser
+				.getCurrentDate())));
+
+		customerForm.addComponent(new Label("Browser Date via DateField"));
+		DateField billDate = new DateField();
+		billDate.setImmediate(true);
+		billDate.setDateFormat("MMM dd, yyyy hh:mm:ss a z");
+		billDate.setResolution(Resolution.SECOND);
+		billDate.setValue(webBrowser.getCurrentDate());
+		customerForm.addComponent(billDate);
+
+		customerForm.addComponent(new Label(
+				"Browser Date via DateField set to localtimezone"));
+		DateField billDate2 = new DateField();
+		billDate2.setDateFormat("MMM dd, yyyy hh:mm:ss a zz");
+		billDate2.setResolution(Resolution.SECOND);
+		billDate2.setTimeZone(clientTZ);
+		billDate2.setValue(webBrowser.getCurrentDate());
+		customerForm.addComponent(billDate2);
+
+		customerForm.addComponent(new Label("Date via DateField"));
+		DateField sample = new DateField();
+		sample.setDateFormat("MMM dd, yyyy hh:mm:ss a zzz");
+		sample.setResolution(Resolution.SECOND);
+		sample.setValue(new Date());
+		customerForm.addComponent(sample);
+
+		customerForm.addComponent(new Label(
+				"Date via DateField set to localtimezone"));
+		DateField sample2 = new DateField();
+		sample2.setDateFormat("MMM dd, yyyy hh:mm:ss a zzzz");
+		sample2.setResolution(Resolution.SECOND);
+		sample2.setTimeZone(TimeZone.getTimeZone("IST"));
+		sample2.setValue(new Date());
+		customerForm.addComponent(sample2);
 
 		customerVLayout.addComponent(customerForm);
 		customerPanel.setContent(customerVLayout);
@@ -1413,9 +1466,12 @@ public class BillingComponent extends CustomComponent {
 		FormLayout dateFL = new FormLayout();
 		TextField dateTF = new TextField(DATE);
 
+		webBrowser = Page.getCurrent().getWebBrowser();
+		clientTZ = new SimpleTimeZone(webBrowser.getTimezoneOffset(), "");
+		billDateDF.setTimeZone(clientTZ);
+		billDateDF.setValue(webBrowser.getCurrentDate());
 		logoLB.setValue("Retale(M)ine Billing Solution");
 		logoLB.setWidth("100%");
-		billDateDF.setValue(new Date());
 		dateTF.setPropertyDataSource(billDateDF);
 		dateTF.setReadOnly(true);
 		dateTF.setWidth("100%");

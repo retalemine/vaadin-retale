@@ -9,6 +9,10 @@ import in.retalemine.view.tryout.beancontainer.BeanContainerEx;
 import in.retalemine.view.tryout.beancontainer.BeanContainerIDResolverEx;
 import in.retalemine.view.tryout.blackboard.BlackBoardExampleApp;
 import in.retalemine.view.tryout.browser.BrowserInformationExample;
+import in.retalemine.view.tryout.javascript.JSIntegrationExample;
+import in.retalemine.view.tryout.javascript.advanced.JSAPIExample;
+import in.retalemine.view.tryout.javascript.inline.ExternalJS;
+import in.retalemine.view.tryout.javascript.inline.InlineJS;
 import in.retalemine.view.ui.ProductUI;
 
 import org.slf4j.Logger;
@@ -54,6 +58,14 @@ public class AppUI extends UI {
 				vLayout.addComponent(new BeanContainerIDResolverEx());
 			} else if ("browserinfo".equals(type)) {
 				vLayout.addComponent(new BrowserInformationExample());
+			} else if ("javascript".equals(type)) {
+				vLayout.addComponent(new JSIntegrationExample());
+			} else if ("advjavascript".equals(type)) {
+				vLayout.addComponent(new JSAPIExample(context));
+			} else if ("inlinejavascript".equals(type)) {
+				vLayout.addComponent(new InlineJS());
+			} else if ("externaljavascript".equals(type)) {
+				vLayout.addComponent(new ExternalJS());
 			}
 			setContent(vLayout);
 		} else {

@@ -1,6 +1,7 @@
 package in.retalemine.view.tryout.browser;
 
 import java.text.DateFormat;
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 import com.vaadin.server.Page;
@@ -69,12 +70,18 @@ public class BrowserInformationExample extends VerticalLayout {
 				+ timeFormatter.format(webBrowser.getCurrentDate()) + "</b>",
 				ContentMode.HTML);
 
+		SimpleTimeZone timezone = new SimpleTimeZone(
+				webBrowser.getTimezoneOffset(), "fake client time zone");
+		DateFormat format = DateFormat.getDateTimeInstance();
+		format.setTimeZone(timezone);
+
 		addComponent(ipAddresslabel);
 		addComponent(browser);
 		addComponent(screenSize);
 		addComponent(locale);
 		addComponent(yourTimeLabel);
 		addComponent(timeZones);
+		addComponent(new Label(format.format(webBrowser.getCurrentDate())));
 
 		populated = true;
 	}

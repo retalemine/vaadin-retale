@@ -33,6 +33,7 @@
 * ProductNameCB container getting updated with duplicate values. ![][tick]
 * BillItemTB container getting updated with duplicate values.
 * Not able to manually enter date to payable date.
+* Negative floating value as pay back amount is throwing error.
 
 ####Commands:  
 * Maven archetype
