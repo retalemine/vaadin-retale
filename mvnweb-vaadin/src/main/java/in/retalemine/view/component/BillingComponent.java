@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SimpleTimeZone;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
@@ -24,6 +23,7 @@ import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.annotations.JavaScript;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Item;
@@ -40,9 +40,8 @@ import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.Page;
-import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.ui.combobox.FilteringMode;
-import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractSelect.NewItemHandler;
@@ -72,6 +71,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Runo;
 
+@JavaScript({ "datetime.js" })
 public class BillingComponent extends CustomComponent {
 
 	private static final long serialVersionUID = -5001424944545200006L;
@@ -84,10 +84,6 @@ public class BillingComponent extends CustomComponent {
 			.getLogger(BillingComponent.class);
 
 	private VerticalLayout mainLayout;
-
-	private DateField billDateDF = new DateField();
-	private WebBrowser webBrowser = null;
-	private SimpleTimeZone clientTZ = null;
 
 	private Table billableItemsTB = new Table();
 
@@ -804,9 +800,6 @@ public class BillingComponent extends CustomComponent {
 	}
 
 	protected void resetBillingComponent() {
-		billDateDF.setReadOnly(false);
-		billDateDF.setValue(new Date());
-		billDateDF.setReadOnly(true);
 		resetAddToCart();
 		billableItemsTB.getContainerDataSource().removeAllItems();
 		updateBillingPayments(null, 0);
@@ -1416,25 +1409,21 @@ public class BillingComponent extends CustomComponent {
 	private Component buildBillingHeader() {
 		AbsoluteLayout billingHeaderLayout = new AbsoluteLayout();
 		Label logoLB = new Label();
-		webBrowser = Page.getCurrent().getWebBrowser();
-		clientTZ = new SimpleTimeZone(webBrowser.getTimezoneOffset(), "");
+		Label dateTimeLB = new Label(
+				"<div style=\"text-align: right;\"><span id=\"retaledatetime\"></span></div>",
+				ContentMode.HTML);
 
 		logoLB.setValue("Retale(M)ine Billing Solution");
 		logoLB.setWidth("100%");
-
-		billDateDF.setDateFormat("MMM dd, yyyy hh:mm:ss a");
-		billDateDF.setResolution(Resolution.SECOND);
-		billDateDF.setTimeZone(clientTZ);
-		billDateDF.setValue(new Date());
-		billDateDF.setReadOnly(true);
-		billDateDF.setWidth("100%");
-		billDateDF.setImmediate(false);
 
 		billingHeaderLayout.setImmediate(false);
 		billingHeaderLayout.setWidth("100%");
 		billingHeaderLayout.setHeight("30px");
 		billingHeaderLayout.addComponent(logoLB, "left: 0px; top: 0px;");
-		billingHeaderLayout.addComponent(billDateDF, "right: 0px; top: 0px;");
+		billingHeaderLayout.addComponent(dateTimeLB, "right: 0px; top: 0px;");
+
+		Page.getCurrent().getJavaScript()
+				.execute("setInterval(displayDateTime, 1000);");
 
 		return billingHeaderLayout;
 	}

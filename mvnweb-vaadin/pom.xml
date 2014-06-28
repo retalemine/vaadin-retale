@@ -91,10 +91,30 @@
 					<stopPort>9999</stopPort>
 					<scanIntervalSeconds>5</scanIntervalSeconds>
 					<!-- changes path from root to this - http://localhost:8080/mvnweb-vaadin/1.0-SNAPSHOT/ -->
-					<!-- <webApp> -->
-					<!-- <contextPath>/${project.artifactId}/${project.version}</contextPath> -->
-					<!-- </webApp> -->
+					<webApp>
+						<!-- <contextPath>/${project.artifactId}/${project.version}</contextPath> -->
+						<!-- <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection"> -->
+						<!-- <resourcesAsCSV>src/main/webapp,src/main/resources/in/retalemine/view/component</resourcesAsCSV> -->
+						<!-- </baseResource> -->
+					</webApp>
 					<jvmArgs>-XX:PermSize=64m -XX:MaxPermSize=128m</jvmArgs>
+					<!-- <scanTargets> -->
+					<!-- <scanTarget>src/mydir</scanTarget> -->
+					<!-- <scanTarget>src/myfile.txt</scanTarget> -->
+					<!-- </scanTargets> -->
+					<!-- <scanTargetPatterns> -->
+					<!-- <scanTargetPattern> -->
+					<!-- <directory>src/main/resources/in/retalemine/view/component</directory> -->
+					<!-- <includes> -->
+					<!-- <include>**/*.xml</include> -->
+					<!-- <include>**/*.properties</include> -->
+					<!-- <include>**/*.js</include> -->
+					<!-- </includes> -->
+					<!-- <excludes> -->
+					<!-- <exclude>**/myspecial.xml</exclude> -->
+					<!-- </excludes> -->
+					<!-- </scanTargetPattern> -->
+					<!-- </scanTargetPatterns> -->
 				</configuration>
 			</plugin>
 			<plugin>
