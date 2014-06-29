@@ -13,6 +13,8 @@ import in.retalemine.view.tryout.javascript.JSIntegrationExample;
 import in.retalemine.view.tryout.javascript.advanced.JSAPIExample;
 import in.retalemine.view.tryout.javascript.inline.ExternalJS;
 import in.retalemine.view.tryout.javascript.inline.InlineJS;
+import in.retalemine.view.tryout.print.PrintingExample;
+import in.retalemine.view.tryout.print.jcprint.JcPrintingExample;
 import in.retalemine.view.ui.ProductUI;
 
 import org.slf4j.Logger;
@@ -66,6 +68,11 @@ public class AppUI extends UI {
 				vLayout.addComponent(new InlineJS());
 			} else if ("externaljavascript".equals(type)) {
 				vLayout.addComponent(new ExternalJS());
+			} else if ("print".equals(type)) {
+				vLayout.addComponent(new PrintingExample(context));
+			} else if ("jcprint".equals(type)) {
+				vLayout.setHeight("100%");
+				vLayout.addComponent(new JcPrintingExample());
 			}
 			setContent(vLayout);
 		} else {

@@ -1,3 +1,4 @@
+//An excellent choice : http://stevenlevithan.com/assets/misc/date.format.js
 function displayDateTime() {
 
 	var weekDay = new Array("Sunday", "Monday", "Tuesday", "Wednesday",

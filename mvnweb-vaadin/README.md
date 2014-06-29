@@ -23,7 +23,8 @@
 
 ####Known Issues and Enhancements:
 * With product name not mentioned, upon entering price getting error. ![][tick]
-* End user browser time should be chosen to display bill time. And subsequently need an analysis on mongodb date save w.r.t browser local time.
+* End user browser time should be chosen to display bill time. ![][tick]
+* Analysis on mongodb date save w.r.t browser local time.
 * Enable user to define tax and tax groups. Also perform a business analysis on implication of each tax type especially the VAT tax which may vary across product category.
 * Noticeable size for 'bill me' button. ![][tick]
 * Include feature to cancel a bill. ![][tick]
@@ -52,4 +53,5 @@ mvn archetype:generate \
  * mvn jetty:stop
  * mvn -Djetty.port=8181 jetty:run __enables to run the app in another port if 8080 is occupied__
  * mvn package  __creates war file__
+ * mvn compile -U __force update__
 
