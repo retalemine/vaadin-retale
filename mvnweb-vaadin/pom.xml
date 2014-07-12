@@ -21,6 +21,7 @@
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<lifecycle-mapping.plugin.version>1.0.0</lifecycle-mapping.plugin.version>
 		<maven-compiler.plugin.version>3.1</maven-compiler.plugin.version>
+		<maven-clean.plugin.version>2.5</maven-clean.plugin.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -213,6 +214,20 @@
 					<configuration>
 						<source>1.6</source>
 						<target>1.6</target>
+					</configuration>
+				</plugin>
+				<!-- as we are doing "inplace" GWT compilation, -->
+				<!-- ensures the widgetset directory is cleaned properly -->
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${maven-clean.plugin.version}</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>src/main/webapp/VAADIN/widgetsets</directory>
+								<directory>src/main/webapp/VAADIN/gwt-unitCache</directory>
+							</fileset>
+						</filesets>
 					</configuration>
 				</plugin>
 			</plugins>

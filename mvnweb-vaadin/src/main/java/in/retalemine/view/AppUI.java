@@ -1,10 +1,6 @@
 package in.retalemine.view;
 
 import in.retalemine.view.component.BillingComponent;
-import in.retalemine.view.tryout.PopupViewContentsExample;
-import in.retalemine.view.tryout.PopupViewExample;
-import in.retalemine.view.tryout.ProductQuantityUITF;
-import in.retalemine.view.tryout.SubWindowExample;
 import in.retalemine.view.tryout.beancontainer.BeanContainerEx;
 import in.retalemine.view.tryout.beancontainer.BeanContainerIDResolverEx;
 import in.retalemine.view.tryout.blackboard.BlackBoardExampleApp;
@@ -13,19 +9,25 @@ import in.retalemine.view.tryout.javascript.JSIntegrationExample;
 import in.retalemine.view.tryout.javascript.advanced.JSAPIExample;
 import in.retalemine.view.tryout.javascript.inline.ExternalJS;
 import in.retalemine.view.tryout.javascript.inline.InlineJS;
+import in.retalemine.view.tryout.popup.PopupViewContentsExample;
+import in.retalemine.view.tryout.popup.PopupViewExample;
+import in.retalemine.view.tryout.popup.ProductQuantityUITF;
 import in.retalemine.view.tryout.print.PrintingExample;
 import in.retalemine.view.tryout.print.jcprint.JcPrintingExample;
+import in.retalemine.view.tryout.window.SubWindowExample;
 import in.retalemine.view.ui.ProductUI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 @Theme("retaletheme")
+@PreserveOnRefresh
 public class AppUI extends UI {
 
 	private static final long serialVersionUID = -4411379836207492227L;

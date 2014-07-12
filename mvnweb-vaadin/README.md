@@ -19,6 +19,7 @@
   * units in pkt
 * Code billing services using mongoDB
 * Print bill
+* Print deliverable
 * Test Cases
 
 ####Known Issues and Enhancements:

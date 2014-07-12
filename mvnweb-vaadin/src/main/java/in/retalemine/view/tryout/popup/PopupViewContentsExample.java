@@ -1,4 +1,4 @@
-package in.retalemine.view.tryout;
+package in.retalemine.view.tryout.popup;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;

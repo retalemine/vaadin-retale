@@ -1,4 +1,6 @@
-package in.retalemine.view.tryout;
+package in.retalemine.view.tryout.popup;
+
+import in.retalemine.view.tryout.DummyTableData;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.AbsoluteLayout;

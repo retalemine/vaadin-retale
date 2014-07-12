@@ -1,4 +1,4 @@
-package in.retalemine.view.tryout;
+package in.retalemine.view.tryout.window;
 
 import java.util.Iterator;
 
