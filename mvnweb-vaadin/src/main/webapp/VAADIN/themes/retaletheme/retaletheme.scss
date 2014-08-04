@@ -27,4 +27,14 @@
 	.v-textfield-align-right{
 	   text-align: right;
 	}
+	
+	.r-table-border-less .v-table-body, .r-table-border-less .v-table-cell-content {
+		border: 0px;
+		padding: 0px;
+    }
+    
+    .r-table-border-less .v-table-cell-wrapper > input.v-textfield{
+		margin-top: 0px;
+    }
+    
 }

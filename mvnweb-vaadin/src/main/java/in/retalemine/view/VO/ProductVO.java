@@ -1,7 +1,9 @@
 package in.retalemine.view.VO;
 
-import java.util.ArrayList;
-import java.util.List;
+import in.retalemine.view.constants.BillingConstants;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
@@ -11,56 +13,46 @@ import org.jscience.physics.amount.Amount;
 
 public class ProductVO<Q extends Quantity> {
 
-	private String productName;
-	private Measure<Double, Q> productUnit;
-	private String productDescription;
-	private List<Amount<Money>> unitPrices = new ArrayList<Amount<Money>>();
+	private final String productName;
+	private final Measure<Double, Q> productUnit;
+	private final String productDescription;
+	private Set<Amount<Money>> unitRates;
+
+	public ProductVO(String productName, Measure<Double, Q> productUnit,
+			Set<Amount<Money>> unitRates) {
+		this.productName = productName;
+		this.productUnit = productUnit;
+		this.productDescription = productName
+				+ BillingConstants.PRODUCT_DESC_DIVIDER + productUnit;
+		this.unitRates = unitRates;
+	}
+
+	public static <T extends Quantity> ProductVO<T> valueOf(String productName,
+			Measure<Double, T> productUnit, Set<Amount<Money>> unitRates) {
+		return new ProductVO<T>(productName, productUnit, unitRates);
+	}
 
 	public String getProductName() {
 		return productName;
-	}
-
-	public void setProductName(String productName) {
-		this.productName = productName;
 	}
 
 	public Measure<Double, Q> getProductUnit() {
 		return productUnit;
 	}
 
-	public void setProductUnit(Measure<Double, Q> productUnit) {
-		this.productUnit = productUnit;
-	}
-
 	public String getProductDescription() {
 		return productDescription;
 	}
 
-	public void setProductDescription(String productDescription) {
-		this.productDescription = productDescription;
-	}
-
-	public List<Amount<Money>> getUnitPrices() {
-		return unitPrices;
-	}
-
-	public void setUnitPrices(List<Amount<Money>> unitPrices) {
-		this.unitPrices = unitPrices;
-	}
-
-	public static <T extends Quantity> ProductVO<T> valueOf(String productName,
-			Measure<Double, T> productUnit, List<Amount<Money>> unitPrices) {
-		ProductVO<T> obj = new ProductVO<T>();
-		obj.setProductName(productName);
-		obj.setProductUnit(productUnit);
-		obj.setProductDescription(productName + " - " + productUnit);
-		if (null != unitPrices) {
-			obj.setUnitPrices(unitPrices);
-		} else {
-			obj.setUnitPrices(new ArrayList<Amount<Money>>());
+	public Set<Amount<Money>> getUnitRates() {
+		if (null == unitRates) {
+			unitRates = new LinkedHashSet<Amount<Money>>(3);
 		}
+		return unitRates;
+	}
 
-		return obj;
+	public void setUnitRates(Set<Amount<Money>> unitRates) {
+		this.unitRates = unitRates;
 	}
 
 	@Override
@@ -76,19 +68,39 @@ public class ProductVO<Q extends Quantity> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (!(obj instanceof ProductVO)) {
 			return false;
+		}
 		ProductVO<?> other = (ProductVO<?>) obj;
 		if (productDescription == null) {
-			if (other.productDescription != null)
+			if (other.productDescription != null) {
 				return false;
-		} else if (!productDescription.equals(other.productDescription))
+			}
+		} else if (!productDescription.equals(other.productDescription)) {
 			return false;
+		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("<ProductVO><productName>");
+		builder.append(productName);
+		builder.append("</productName><productUnit>");
+		builder.append(productUnit);
+		builder.append("</productUnit><productDescription>");
+		builder.append(productDescription);
+		builder.append("</productDescription><unitRates>");
+		builder.append(unitRates);
+		builder.append("</unitRates></ProductVO>");
+		return builder.toString();
 	}
 
 }

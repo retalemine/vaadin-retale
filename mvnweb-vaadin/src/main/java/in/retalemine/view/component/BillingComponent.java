@@ -1,5 +1,6 @@
 package in.retalemine.view.component;
 
+import in.retalemine.util.BillingComputationUtil;
 import in.retalemine.util.RegExUtil;
 import in.retalemine.util.RetaSI;
 import in.retalemine.util.Rupee;
@@ -12,7 +13,7 @@ import in.retalemine.view.ui.ProductQuantityCB;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
@@ -122,12 +123,12 @@ public class BillingComponent extends CustomComponent {
 	private final String COLON = ":";
 	private final String TOTAL = "Total";
 	private final String TAX = "Tax";
-	private final String PID_SERIAL_NO = "serialNo";
+	// private final String PID_SERIAL_NO = "serialNo";
 	private final String PID_PRODUCT_NAME = "productName";
 	private final String PID_PRODUCT_UNIT = "productUnit";
 	private final String PID_PRODUCT_DESCRIPTION = "productDescription";
-	private final String PID_UNIT_RATE = "unitPrice";
-	private final String PID_QUANTITY = "quantity";
+	private final String PID_UNIT_RATE = "unitRate";
+	private final String PID_QUANTITY = "netQuantity";
 	private final String PID_AMOUNT = "amount";
 	private final String SERIAL_NO = "No.";
 	private final String PRODUCT_NAME = "Product Name";
@@ -847,8 +848,8 @@ public class BillingComponent extends CustomComponent {
 	private Component buildBillingTable() {
 		Panel billingPanel = new Panel();
 
-		billableItemsTB.addContainerProperty(PID_SERIAL_NO, Integer.class,
-				null, SERIAL_NO, null, null);
+		// billableItemsTB.addContainerProperty(PID_SERIAL_NO, Integer.class,
+		// null, SERIAL_NO, null, null);
 		billableItemsTB.addContainerProperty(PID_PRODUCT_NAME, String.class,
 				"", PRODUCT_NAME, null, null);
 		billableItemsTB.addContainerProperty(PID_PRODUCT_UNIT, Measure.class,
@@ -864,11 +865,11 @@ public class BillingComponent extends CustomComponent {
 				.setContainerDataSource(new BeanItemContainer<BillItemVO<? extends Quantity, ? extends Quantity>>(
 						BillItemVO.class));
 
-		billableItemsTB.setVisibleColumns(new Object[] { PID_SERIAL_NO,
+		billableItemsTB.setVisibleColumns(new Object[] { // PID_SERIAL_NO,
 				PID_PRODUCT_NAME, PID_PRODUCT_UNIT, PID_UNIT_RATE,
-				PID_QUANTITY, PID_AMOUNT });
+						PID_QUANTITY, PID_AMOUNT });
 
-		billableItemsTB.setColumnExpandRatio(PID_SERIAL_NO, 1);
+		// billableItemsTB.setColumnExpandRatio(PID_SERIAL_NO, 1);
 		billableItemsTB.setColumnExpandRatio(PID_PRODUCT_NAME, 18);
 		billableItemsTB.setColumnExpandRatio(PID_PRODUCT_UNIT, 4);
 		billableItemsTB.setColumnExpandRatio(PID_UNIT_RATE, 4);
@@ -942,7 +943,7 @@ public class BillingComponent extends CustomComponent {
 										.getAmount(), -1);
 						billableItemsTB.getContainerDataSource().removeItem(
 								billableItemsTB.getValue());
-						reOrderBillingSNo();
+						// reOrderBillingSNo();
 						resetAddToCart();
 					}
 				}
@@ -953,9 +954,9 @@ public class BillingComponent extends CustomComponent {
 				Integer serialNoSeq = 1;
 				for (Iterator<?> i = billableItemsTB.getContainerDataSource()
 						.getItemIds().iterator(); i.hasNext();) {
-					billableItemsTB.getContainerDataSource().getItem(i.next())
-							.getItemProperty(PID_SERIAL_NO)
-							.setValue(serialNoSeq++);
+					// billableItemsTB.getContainerDataSource().getItem(i.next())
+					// .getItemProperty(PID_SERIAL_NO)
+					// .setValue(serialNoSeq++);
 				}
 			}
 
@@ -1055,9 +1056,9 @@ public class BillingComponent extends CustomComponent {
 					BeanItemContainer<Amount<Money>> rateContainer = (BeanItemContainer<Amount<Money>>) productRateCB
 							.getContainerDataSource();
 					rateContainer.removeAllItems();
-					logger.info("price list {}", productVO.getUnitPrices());
-					if (null != productVO.getUnitPrices()) {
-						rateContainer.addAll(productVO.getUnitPrices());
+					logger.info("price list {}", productVO.getUnitRates());
+					if (null != productVO.getUnitRates()) {
+						rateContainer.addAll(productVO.getUnitRates());
 						productRateCB.select(rateContainer.firstItemId());
 					}
 					quantityCB.getContainerDataSource().removeAllItems();
@@ -1093,10 +1094,9 @@ public class BillingComponent extends CustomComponent {
 					productRateCB.addItem(rate);
 					productRateCB.setValue(rate);
 
-					((List<Amount<Money>>) productNameCBCTR
+					((Set<Amount<Money>>) productNameCBCTR
 							.getItem(productNameCB.getValue())
-							.getItemProperty("unitPrices").getValue())
-							.add(rate);
+							.getItemProperty("unitRates").getValue()).add(rate);
 
 					quantityCB.focus();
 				} catch (NumberFormatException e) {
@@ -1153,8 +1153,8 @@ public class BillingComponent extends CustomComponent {
 							.getValue());
 					Measure<Double, ? extends Quantity> quantity = (Measure<Double, ? extends Quantity>) quantityCB
 							.getValue();
-					BillItemVO<?, ?> bItem = BillItemVO.valueOf(serialNo,
-							productName, productUnit, productDescription,
+					BillItemVO<?, ?> bItem = BillItemVO.valueOf(
+							ProductVO.valueOf(productName, productUnit, null),
 							unitPrice, quantity);
 					billableItemsTB.getContainerDataSource().addItem(bItem);
 					billableItemsTB.setCurrentPageFirstItemId(bItem);
@@ -1170,7 +1170,10 @@ public class BillingComponent extends CustomComponent {
 					selectedItem.getItemProperty(PID_QUANTITY).setValue(
 							quantityCB.getValue());
 					selectedItem.getItemProperty(PID_AMOUNT).setValue(
-							BillItemVO.computeAmount(billItemVO));
+							BillingComputationUtil.computeAmount(
+									billItemVO.getProductUnit(),
+									billItemVO.getUnitRate(),
+									billItemVO.getNetQuantity()));
 					updateBillingPayments(billItemVO.getAmount(), 1);
 				}
 				resetAddToCart();

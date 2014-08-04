@@ -1,71 +1,55 @@
 package in.retalemine.view.VO;
 
-import in.retalemine.util.RetaSI;
+import in.retalemine.util.BillingComputationUtil;
+
+import java.util.Set;
 
 import javax.measure.Measure;
-import javax.measure.converter.ConversionException;
-import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Quantity;
 
 import org.jscience.economics.money.Money;
 import org.jscience.physics.amount.Amount;
 
-public class BillItemVO<U extends Quantity, V extends Quantity> {
+public class BillItemVO<U extends Quantity, V extends Quantity> extends
+		ProductVO<U> {
 
-	private Integer serialNo;
-	private String productName;
-	private Measure<Double, U> productUnit;
-	private String productDescription;
-	private Amount<Money> unitPrice;
-	private Measure<Double, V> quantity;
+	private Amount<Money> unitRate;
+	private Measure<Double, V> netQuantity;
 	private Amount<Money> amount;
 
-	public Integer getSerialNo() {
-		return serialNo;
+	public BillItemVO(String productName, Measure<Double, U> productUnit,
+			Set<Amount<Money>> unitRates, Amount<Money> unitRate,
+			Measure<Double, V> netQuantity) {
+		super(productName, productUnit, unitRates);
+		this.unitRate = unitRate;
+		this.netQuantity = netQuantity;
+		this.amount = BillingComputationUtil.computeAmount(productUnit,
+				unitRate, netQuantity);
+
 	}
 
-	public void setSerialNo(Integer serialNo) {
-		this.serialNo = serialNo;
+	public static <U extends Quantity, V extends Quantity> BillItemVO<U, V> valueOf(
+			ProductVO<U> productVO, Amount<Money> unitRate,
+			Measure<Double, V> netQuantity) {
+		return new BillItemVO<U, V>(productVO.getProductName(),
+				productVO.getProductUnit(), productVO.getUnitRates(), unitRate,
+				netQuantity);
 	}
 
-	public String getProductName() {
-		return productName;
+	public Amount<Money> getUnitRate() {
+		return unitRate;
 	}
 
-	public void setProductName(String productName) {
-		this.productName = productName;
+	public void setUnitRate(Amount<Money> unitRate) {
+		this.unitRate = unitRate;
 	}
 
-	public Measure<Double, U> getProductUnit() {
-		return productUnit;
+	public Measure<Double, V> getNetQuantity() {
+		return netQuantity;
 	}
 
-	public void setProductUnit(Measure<Double, U> productUnit) {
-		this.productUnit = productUnit;
-	}
-
-	public String getProductDescription() {
-		return productDescription;
-	}
-
-	public void setProductDescription(String productDescription) {
-		this.productDescription = productDescription;
-	}
-
-	public Amount<Money> getUnitPrice() {
-		return unitPrice;
-	}
-
-	public void setUnitPrice(Amount<Money> unitPrice) {
-		this.unitPrice = unitPrice;
-	}
-
-	public Measure<Double, V> getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Measure<Double, V> quantity) {
-		this.quantity = quantity;
+	public void setNetQuantity(Measure<Double, V> netQuantity) {
+		this.netQuantity = netQuantity;
 	}
 
 	public Amount<Money> getAmount() {
@@ -76,53 +60,48 @@ public class BillItemVO<U extends Quantity, V extends Quantity> {
 		this.amount = amount;
 	}
 
-	public static <U extends Quantity, V extends Quantity> BillItemVO<U, V> valueOf(
-			Integer serialNo, String productName,
-			Measure<Double, U> productUnit, String productDescription,
-			Amount<Money> unitPrice, Measure<Double, V> quantity) {
-		BillItemVO<U, V> billItemVO = new BillItemVO<U, V>();
-		billItemVO.setSerialNo(serialNo);
-		billItemVO.setProductName(productName);
-		billItemVO.setProductUnit(productUnit);
-		billItemVO.setProductDescription(productDescription);
-		billItemVO.setUnitPrice(unitPrice);
-		billItemVO.setQuantity(quantity);
-		billItemVO.setAmount(computeAmount(billItemVO));
-
-		return billItemVO;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((unitRate == null) ? 0 : unitRate.hashCode());
+		return result;
 	}
 
-	public static <U extends Quantity, V extends Quantity> Amount<Money> computeAmount(
-			BillItemVO<U, V> billItemVO) {
-		UnitConverter quantityToUnit = null;
-		ConversionException cEx = null;
-		try {
-			quantityToUnit = billItemVO.getQuantity().getUnit()
-					.getConverterTo(billItemVO.getProductUnit().getUnit());
-		} catch (ConversionException e) {
-			cEx = e;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
 		}
-
-		if (null == quantityToUnit) {
-			if (RetaSI.PIECE.equals(billItemVO.getQuantity().getUnit())) {
-				return billItemVO.getUnitPrice().times(
-						billItemVO.getQuantity().getValue());
-			}
-			// else if
-			// (RetaSI.PACKET.equals(billItemVO.getQuantity().getUnit())) {
-			// return billItemVO.getUnitPrice().times(
-			// billItemVO.getQuantity().getValue());
-			// }
-			else if (RetaSI.DOZEN.equals(billItemVO.getQuantity().getUnit())) {
-				return billItemVO.getUnitPrice().times(
-						billItemVO.getQuantity().getValue() * 12);
-			} else {
-				throw cEx;
-			}
-		} else {
-			return billItemVO.getUnitPrice().times(
-					quantityToUnit.convert(billItemVO.getQuantity().getValue())
-							/ billItemVO.getProductUnit().getValue());
+		if (!super.equals(obj)) {
+			return false;
 		}
+		if (!(obj instanceof BillItemVO)) {
+			return false;
+		}
+		BillItemVO<?, ?> other = (BillItemVO<?, ?>) obj;
+		if (unitRate == null) {
+			if (other.unitRate != null) {
+				return false;
+			}
+		} else if (!unitRate.equals(other.unitRate)) {
+			return false;
+		}
+		return true;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(super.toString());
+		builder.append("<BillItemVO><unitRate>");
+		builder.append(unitRate);
+		builder.append("</unitRate><netQuantity>");
+		builder.append(netQuantity);
+		builder.append("</netQuantity><amount>");
+		builder.append(amount);
+		builder.append("</amount></BillItemVO>");
+		return builder.toString();
+	}
+
 }

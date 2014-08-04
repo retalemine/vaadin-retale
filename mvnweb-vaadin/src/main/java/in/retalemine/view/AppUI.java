@@ -16,12 +16,10 @@ import in.retalemine.view.tryout.popup.ProductQuantityUITF;
 import in.retalemine.view.tryout.print.PrintingExample;
 import in.retalemine.view.tryout.print.jcprint.JcPrintingExample;
 import in.retalemine.view.tryout.window.SubWindowExample;
-import in.retalemine.view.ui.ProductUI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Label;
@@ -41,6 +39,7 @@ public class AppUI extends UI {
 		VerticalLayout vLayout = new VerticalLayout();
 		vLayout.setSpacing(true);
 		vLayout.setWidth("100%");
+		setContent(vLayout);
 
 		String profile = request.getParameter("profile");
 		logger.info("profile {}", profile);
@@ -82,10 +81,6 @@ public class AppUI extends UI {
 				vLayout.setHeight("100%");
 				vLayout.addComponent(new JcPrintingExample());
 			}
-			setContent(vLayout);
-		} else {
-			vLayout.addComponent(new ProductUI());
-			setContent(vLayout);
 		}
 		logger.info("Completed setting layout");
 	}
