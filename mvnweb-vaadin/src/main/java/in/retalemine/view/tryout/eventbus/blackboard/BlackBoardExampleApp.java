@@ -1,6 +1,6 @@
-package in.retalemine.view.tryout.blackboard;
+package in.retalemine.view.tryout.eventbus.blackboard;
 
-import in.retalemine.view.tryout.blackboard.TestMessageEvent.TestMessageListener;
+import in.retalemine.view.tryout.eventbus.blackboard.TestMessageEvent.TestMessageListener;
 
 import com.github.wolfie.blackboard.Blackboard;
 
@@ -45,8 +45,12 @@ public class BlackBoardExampleApp {
 		 * Each of these strings will appear twice in the console, since there
 		 * are two listeners interested in them.
 		 */
+		System.out.println("before 1");
 		sendString("Hello listeners");
+		System.out.println("after 1");
+		System.out.println("before 2");
 		sendString("How are you doing?");
+		System.out.println("after 2");		
 	}
 
 	private static void sendString(final String message) {

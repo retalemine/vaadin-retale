@@ -1,4 +1,4 @@
-package in.retalemine.view.tryout.blackboard;
+package in.retalemine.view.tryout.eventbus.blackboard;
 
 import com.github.wolfie.blackboard.Event;
 import com.github.wolfie.blackboard.Listener;

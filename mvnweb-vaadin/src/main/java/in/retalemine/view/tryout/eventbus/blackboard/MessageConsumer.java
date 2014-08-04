@@ -1,6 +1,6 @@
-package in.retalemine.view.tryout.blackboard;
+package in.retalemine.view.tryout.eventbus.blackboard;
 
-import in.retalemine.view.tryout.blackboard.TestMessageEvent.TestMessageListener;
+import in.retalemine.view.tryout.eventbus.blackboard.TestMessageEvent.TestMessageListener;
 
 /**
  * A class that listens for {@link TestMessageEvent TestMessageEvents} and

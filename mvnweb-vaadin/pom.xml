@@ -14,6 +14,7 @@
 		<log4j.version>2.0-rc1</log4j.version>
 		<vaadin.version>7.1.12</vaadin.version>
 		<blackboard-addon.version>2.2.0</blackboard-addon.version>
+		<guava.version>17.0</guava.version>
 		<jscience.version>4.3.1</jscience.version>
 		<apache-fop.version>1.0</apache-fop.version>
 		<itext-MPL-LGPL.version>4.2.1</itext-MPL-LGPL.version>
@@ -74,6 +75,12 @@
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>blackboard</artifactId>
 			<version>${blackboard-addon.version}</version>
+		</dependency>
+		<!-- Google Core lib for java: Event Bus -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
 		</dependency>
 		<!-- util: jscience -->
 		<dependency>
