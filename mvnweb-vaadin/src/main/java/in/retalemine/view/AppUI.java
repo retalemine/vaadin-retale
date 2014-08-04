@@ -3,8 +3,9 @@ package in.retalemine.view;
 import in.retalemine.view.component.BillingComponent;
 import in.retalemine.view.tryout.beancontainer.BeanContainerEx;
 import in.retalemine.view.tryout.beancontainer.BeanContainerIDResolverEx;
-import in.retalemine.view.tryout.blackboard.BlackBoardExampleApp;
 import in.retalemine.view.tryout.browser.BrowserInformationExample;
+import in.retalemine.view.tryout.eventbus.blackboard.BlackBoardExampleApp;
+import in.retalemine.view.tryout.eventbus.guava.GuavaEventBusExampleApp;
 import in.retalemine.view.tryout.javascript.JSIntegrationExample;
 import in.retalemine.view.tryout.javascript.advanced.JSAPIExample;
 import in.retalemine.view.tryout.javascript.inline.ExternalJS;
@@ -23,11 +24,13 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 @Theme("retaletheme")
-@PreserveOnRefresh
+// preserve on refresh kills
+// @PreserveOnRefresh
 public class AppUI extends UI {
 
 	private static final long serialVersionUID = -4411379836207492227L;
@@ -51,6 +54,8 @@ public class AppUI extends UI {
 			logger.info("Context {}", context);
 			if ("blackboard".equals(type)) {
 				new BlackBoardExampleApp();
+			} else if ("guava".equals(type)) {
+				new GuavaEventBusExampleApp();
 			} else if ("popup".equals(type)) {
 				vLayout.addComponent(new PopupViewContentsExample());
 				vLayout.addComponent(new PopupViewExample());
@@ -59,6 +64,7 @@ public class AppUI extends UI {
 				vLayout.addComponent(new SubWindowExample(context));
 			} else if ("beancontainer".equals(type)) {
 				vLayout.addComponent(new BeanContainerEx());
+				vLayout.addComponent(new Label("--------------------"));
 				vLayout.addComponent(new BeanContainerIDResolverEx());
 			} else if ("browserinfo".equals(type)) {
 				vLayout.addComponent(new BrowserInformationExample());
