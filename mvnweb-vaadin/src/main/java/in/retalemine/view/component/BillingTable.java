@@ -6,6 +6,11 @@ import in.retalemine.view.constants.BillingConstants;
 import in.retalemine.view.event.BillItemSelectionEvent;
 import in.retalemine.view.event.CartSelectionEvent;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
+
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 
@@ -134,6 +139,59 @@ public class BillingTable extends Table {
 
 	}
 
+	@Override
+	public Collection<?> getSortableContainerPropertyIds() {
+		logger.info("getSortableContainerPropertyIds");
+		// return super.getSortableContainerPropertyIds();
+		LinkedList<Object> sortables = new LinkedList<Object>();
+		sortables.addAll(Arrays.asList(BillingConstants.PID_PRODUCT_NAME,
+				BillingConstants.PID_UNIT_RATE, BillingConstants.PID_AMOUNT));
+		return sortables;
+	}
+
+	@Override
+	public Object getSortContainerPropertyId() {
+		logger.info("getSortContainerPropertyId");
+		return super.getSortContainerPropertyId();
+	}
+
+	@Override
+	public void setSortContainerPropertyId(Object propertyId) {
+		logger.info("setSortContainerPropertyId");
+		super.setSortContainerPropertyId(propertyId);
+	}
+
+	@Override
+	public void sort(Object[] propertyId, boolean[] ascending)
+			throws UnsupportedOperationException {
+		logger.info("sort");
+		super.sort(propertyId, ascending);
+	}
+
+	@Override
+	public void changeVariables(Object source, Map<String, Object> variables) {
+		logger.info("changeVariables");
+		super.changeVariables(source, variables);
+	}
+
+	@Override
+	public void refreshRowCache() {
+		logger.info("refreshRowCache");
+		super.refreshRowCache();
+	}
+
+	@Override
+	protected void resetPageBuffer() {
+		logger.info("resetPageBuffer");
+		super.resetPageBuffer();
+	}
+
+	@Override
+	protected void refreshRenderedCells() {
+		logger.info("refreshRenderedCells");
+		super.refreshRenderedCells();
+	}
+
 	private Object getItemValue(Object itemId, String pId) {
 		return container.getItem(itemId).getItemProperty(pId).getValue();
 	}
@@ -146,7 +204,7 @@ public class BillingTable extends Table {
 	@SuppressWarnings("unchecked")
 	private void updateItem(Object itemId,
 			BillItemVO<? extends Quantity, ? extends Quantity> eventItem,
-			Boolean replaceQty) {
+			Boolean replaceQty, Boolean replaceUnitRate) {
 
 		if (replaceQty) {
 			setItemValue(itemId, BillingConstants.PID_NET_QUANTITY,
@@ -170,6 +228,14 @@ public class BillingTable extends Table {
 							eventItem.getProductUnit(),
 							eventItem.getUnitRate(), finalNetQuantity));
 		}
+
+		if (replaceUnitRate) {
+			setItemValue(itemId, BillingConstants.PID_UNIT_RATE,
+					eventItem.getUnitRate());
+			logger.info("$");
+			refreshRowCache();
+			logger.info("${}", container.getItemIds());
+		}
 	}
 
 	@Subscribe
@@ -178,22 +244,23 @@ public class BillingTable extends Table {
 				.getSimpleName(), getClass().getSimpleName(), event);
 		if (event.getIsNew()) {
 			if (container.containsId(event.getBillItemVO())) {
-				updateItem(event.getBillItemVO(), event.getBillItemVO(), false);
+				updateItem(event.getBillItemVO(), event.getBillItemVO(), false,
+						false);
 			} else {
 				container.addItem(event.getBillItemVO());
 			}
 		} else {
 			if (event.getBillItemVO().equals(getValue())) {
 				// UnitRate not modified
-				updateItem(getValue(), event.getBillItemVO(), true);
+				updateItem(getValue(), event.getBillItemVO(), true, false);
 			} else {
 				// UnitRate modified
-				container.removeItem(getValue());
 				if (container.containsId(event.getBillItemVO())) {
+					container.removeItem(getValue());
 					updateItem(event.getBillItemVO(), event.getBillItemVO(),
-							false);
+							false, false);
 				} else {
-					container.addItem(event.getBillItemVO());
+					updateItem(getValue(), event.getBillItemVO(), true, true);
 				}
 			}
 		}
