@@ -1,11 +1,17 @@
 package in.retalemine.util;
 
+import in.retalemine.view.VO.BillItemVO;
+import in.retalemine.view.VO.TaxVO;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.measure.Measure;
@@ -18,6 +24,9 @@ import org.jscience.economics.money.Money;
 import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.data.Container;
+import com.vaadin.data.util.BeanContainer;
 
 public class BillingComputationUtil {
 
@@ -63,6 +72,17 @@ public class BillingComputationUtil {
 			put("dz", "dz");
 			put("dozen", "dz");
 			put("dozens", "dz");
+		}
+	};
+
+	private static final Map<String, Double> taxPercentMap = new HashMap<String, Double>() {
+
+		private static final long serialVersionUID = 570223805652706264L;
+
+		{
+			put("VAT", 4.0);
+			put("Sales Tax", 5.0);
+			put("Service Tax", 12.0);
 		}
 	};
 
@@ -134,5 +154,40 @@ public class BillingComputationUtil {
 						netQuantity.getUnit()));
 			}
 		}
+	}
+
+	public static Set<TaxVO> getBillingTaxSet() {
+		Set<TaxVO> taxSet = new HashSet<TaxVO>();
+		for (Map.Entry<String, Double> tax : taxPercentMap.entrySet()) {
+			taxSet.add(new TaxVO(tax.getKey(), tax.getValue()));
+		}
+		return taxSet;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <U> Container getContainerSource(Collection<U> options,
+			Container container) {
+		if (options != null) {
+			if (container instanceof BeanContainer) {
+				for (final Iterator<U> i = options.iterator(); i.hasNext();) {
+					((BeanContainer<?, U>) container).addBean(i.next());
+				}
+			} else {
+				for (final Iterator<U> i = options.iterator(); i.hasNext();) {
+					container.addItem(i.next());
+				}
+			}
+
+		}
+		return container;
+	}
+
+	public static Amount<Money> computeSubAmount(
+			List<BillItemVO<? extends Quantity, ? extends Quantity>> billItemIds) {
+		Amount<Money> subAmount = Amount.valueOf(0.0, BillingUnits.INR);
+		for (BillItemVO<? extends Quantity, ? extends Quantity> billItemVO : billItemIds) {
+			subAmount = subAmount.plus(billItemVO.getAmount());
+		}
+		return subAmount;
 	}
 }

@@ -79,7 +79,6 @@ public class QuantityComponent extends Table {
 				}
 			});
 		}
-
 	}
 
 	private class QuantityUnits extends ComboBox {

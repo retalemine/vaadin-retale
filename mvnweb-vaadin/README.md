@@ -105,6 +105,19 @@
      * BillItemSelectionEvent
        * BillItem [selected]
        * BillItem [unselected]
+     * BillItemChangeEvent
+       * subTotal [Items > 0]
+
+ * BillingAmountPanel
+   * Holds Amount related values
+   * Listens:
+     * BillItemChangeEvent
+     * TaxSelectionEvent
+
+ * BillingAmountPanel.TaxComboBox
+   * Allows to define tax for the bill
+   * Post:
+     * TaxSelectionEvent
 
 ####Commands:  
 * Maven archetype

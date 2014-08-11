@@ -190,7 +190,7 @@ public class ProductComboBox extends ComboBox {
 		setEnabled(true);
 		focus();
 	}
-	
+
 	@Subscribe
 	public void listenRateSelectionEvent(final RateSelectionEvent event) {
 		logger.info("Event - {} : handler - {} : value - {}", event.getClass()

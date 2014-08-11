@@ -36,11 +36,15 @@ public interface BillingConstants {
 	public static final String AMOUNT = "Amount";
 
 	public static final String SUB_TOTAL = "SubTotal";
+	public static final String TOTAL = "Total";
+	public static final String PROMPT_TAX = "Tax";
+	public static final String PID_TAX_TYPE = "taxType";
+	public static final String PID_TAX_PERCENT = "taxPercent";
+
 	public static final String EMPTY = "";
 	public static final String ZERO = "0.0";
 	public static final String COLON = ":";
-	public static final String TOTAL = "Total";
-	public static final String TAX = "Tax";
+
 	public static final String BILL_NO = "Bill No. ";
 	public static final String DATE = "Date :";
 	public static final String DATE_FORMAT = "dd-MM-yyyy";
