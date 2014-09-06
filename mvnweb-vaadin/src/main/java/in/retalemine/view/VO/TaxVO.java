@@ -57,13 +57,7 @@ public class TaxVO {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("<TaxVO><taxType>");
-		builder.append(taxType);
-		builder.append("</taxType><taxPercent>");
-		builder.append(taxPercent);
-		builder.append("</taxPercent></TaxVO>");
-		return builder.toString();
+		return taxType + "(" + taxPercent + " %)";
 	}
 
 }

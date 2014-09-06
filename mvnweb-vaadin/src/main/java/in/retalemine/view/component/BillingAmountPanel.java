@@ -66,11 +66,12 @@ public class BillingAmountPanel extends VerticalLayout {
 	public void listenBillItemChangeEvent(final BillItemChangeEvent event) {
 		logger.info("Event - {} : handler - {} : value - {}", event.getClass()
 				.getSimpleName(), getClass().getSimpleName(), event);
-		if (null != event.getSubTotal()) {
-			subTotalProperty.setValue(event.getSubTotal());
-			taxAmountProperty.setValue(event.getSubTotal().times(taxPercent)
-					.divide(100));
-			totalAmountProperty.setValue(event.getSubTotal().plus(
+		if (null != event.getBillItems()) {
+			subTotalProperty.setValue(BillingComputationUtil
+					.computeSubAmount(event.getBillItems()));
+			taxAmountProperty.setValue(subTotalProperty.getValue()
+					.times(taxPercent).divide(100));
+			totalAmountProperty.setValue(subTotalProperty.getValue().plus(
 					taxAmountProperty.getValue()));
 		} else {
 			subTotalProperty.setValue(subTotalProperty.getValue().times(0));
@@ -84,11 +85,19 @@ public class BillingAmountPanel extends VerticalLayout {
 	public void listenTaxSelectionEvent(final TaxSelectionEvent event) {
 		logger.info("Event - {} : handler - {} : value - {}", event.getClass()
 				.getSimpleName(), getClass().getSimpleName(), event);
-		taxPercent = event.getPercent();
-		taxAmountProperty.setValue(subTotalProperty.getValue()
-				.times(taxPercent).divide(100));
-		totalAmountProperty.setValue(subTotalProperty.getValue().plus(
-				taxAmountProperty.getValue()));
+		if (null != event.getTaxVO()) {
+			taxPercent = event.getTaxVO().getTaxPercent();
+			taxAmountProperty.setValue(subTotalProperty.getValue()
+					.times(taxPercent).divide(100));
+			totalAmountProperty.setValue(subTotalProperty.getValue().plus(
+					taxAmountProperty.getValue()));
+		} else {
+			taxPercent = 0;
+			taxAmountProperty.setValue(subTotalProperty.getValue().times(
+					taxPercent));
+			totalAmountProperty.setValue(subTotalProperty.getValue());
+		}
+
 	}
 
 	class AmountComponent extends HorizontalLayout {
@@ -119,7 +128,7 @@ public class BillingAmountPanel extends VerticalLayout {
 		private AmountLabel value;
 
 		public TaxAmountComponent(final Property<Amount<Money>> contentSource) {
-
+			logger.info("Initializing {}", getClass().getSimpleName());
 			setImmediate(false);
 			setWidth("100%");
 			setMargin(false);
@@ -160,19 +169,17 @@ public class BillingAmountPanel extends VerticalLayout {
 				@Override
 				public void valueChange(Property.ValueChangeEvent event) {
 					Object value = event.getProperty().getValue();
-					double taxPercent = 0.0;
-					if (null != value) {
-						taxPercent = (Double) container.getContainerProperty(
-								value, BillingConstants.PID_TAX_PERCENT)
-								.getValue();
-					}
 					logger.info("{} posts TaxSelectionEvent", getClass()
 							.getSimpleName());
-					eventBus.post(new TaxSelectionEvent(taxPercent));
+					if (null != value) {
+						eventBus.post(new TaxSelectionEvent(container.getItem(
+								value).getBean()));
+					} else {
+						eventBus.post(new TaxSelectionEvent(null));
+					}
 				}
 			});
 		}
-
 	}
 
 	class AmountLabel extends Label {

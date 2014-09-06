@@ -1,6 +1,6 @@
 package in.retalemine.view.converter;
 
-import in.retalemine.view.component.BillingComponent;
+import in.retalemine.util.BillingUnits;
 
 import java.util.Locale;
 
@@ -23,7 +23,7 @@ public class AmountConverter implements Converter<String, Amount> {
 				amount = Amount.valueOf(value);
 			} catch (Exception e) {
 				amount = Amount.valueOf(Double.parseDouble(value),
-						BillingComponent.getGlobalCurrency());
+						BillingUnits.INR);
 			}
 		}
 		return amount;

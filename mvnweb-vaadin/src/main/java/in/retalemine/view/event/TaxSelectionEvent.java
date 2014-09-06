@@ -1,24 +1,25 @@
 package in.retalemine.view.event;
 
+import in.retalemine.view.VO.TaxVO;
+
 public class TaxSelectionEvent {
 
-	private final double percent;
+	private final TaxVO taxVO;
 
-	public TaxSelectionEvent(double percent) {
-		this.percent = percent;
+	public TaxSelectionEvent(TaxVO taxVO) {
+		this.taxVO = taxVO;
 	}
 
-	public double getPercent() {
-		return percent;
+	public TaxVO getTaxVO() {
+		return taxVO;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("<TaxSelectionEvent><percent>");
-		builder.append(percent);
-		builder.append("</percent></TaxSelectionEvent>");
+		builder.append("<TaxSelectionEvent><taxVO>");
+		builder.append(taxVO);
+		builder.append("</taxVO></TaxSelectionEvent>");
 		return builder.toString();
 	}
-
 }

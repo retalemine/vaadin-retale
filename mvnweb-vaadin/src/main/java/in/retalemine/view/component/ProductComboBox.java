@@ -8,6 +8,7 @@ import in.retalemine.view.event.BillItemSelectionEvent;
 import in.retalemine.view.event.CartSelectionEvent;
 import in.retalemine.view.event.ProductSelectionEvent;
 import in.retalemine.view.event.RateSelectionEvent;
+import in.retalemine.view.event.ResetBillingEvent;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
@@ -219,6 +220,13 @@ public class ProductComboBox extends ComboBox {
 		} else {
 			resetProductComboBox();
 		}
+	}
+	
+	@Subscribe
+	public void listenResetBillingEvent(final ResetBillingEvent event) {
+		logger.info("Event - {} : handler - {}", event.getClass()
+				.getSimpleName(), getClass().getSimpleName());
+		resetProductComboBox();
 	}
 
 }

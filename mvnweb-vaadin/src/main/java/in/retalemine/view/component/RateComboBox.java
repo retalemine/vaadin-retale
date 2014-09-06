@@ -6,6 +6,7 @@ import in.retalemine.view.event.BillItemSelectionEvent;
 import in.retalemine.view.event.CartSelectionEvent;
 import in.retalemine.view.event.ProductSelectionEvent;
 import in.retalemine.view.event.RateSelectionEvent;
+import in.retalemine.view.event.ResetBillingEvent;
 
 import org.jscience.economics.money.Money;
 import org.jscience.physics.amount.Amount;
@@ -140,4 +141,10 @@ public class RateComboBox extends ComboBox {
 		}
 	}
 
+	@Subscribe
+	public void listenResetBillingEvent(final ResetBillingEvent event) {
+		logger.info("Event - {} : handler - {}", event.getClass()
+				.getSimpleName(), getClass().getSimpleName());
+		resetRateComboBox();
+	}
 }

@@ -190,4 +190,13 @@ public class BillingComputationUtil {
 		}
 		return subAmount;
 	}
+
+	public static Amount<Money> computeTotalAmount(Amount<Money> subTotal,
+			List<TaxVO> taxVOList) {
+		double taxPercent = 0.0;
+		for (TaxVO taxVO : taxVOList) {
+			taxPercent += taxVO.getTaxPercent();
+		}
+		return subTotal.times((100 + taxPercent) / 100);
+	}
 }

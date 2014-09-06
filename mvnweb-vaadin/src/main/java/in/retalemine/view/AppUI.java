@@ -6,6 +6,7 @@ import in.retalemine.view.tryout.beancontainer.BeanContainerIDResolverEx;
 import in.retalemine.view.tryout.browser.BrowserInformationExample;
 import in.retalemine.view.tryout.eventbus.blackboard.BlackBoardExampleApp;
 import in.retalemine.view.tryout.eventbus.guava.GuavaEventBusExampleApp;
+import in.retalemine.view.tryout.form.FieldGroupExample;
 import in.retalemine.view.tryout.javascript.JSIntegrationExample;
 import in.retalemine.view.tryout.javascript.advanced.JSAPIExample;
 import in.retalemine.view.tryout.javascript.inline.ExternalJS;
@@ -53,6 +54,8 @@ public class AppUI extends UI {
 			logger.info("Context {}", context);
 			if ("blackboard".equals(type)) {
 				new BlackBoardExampleApp();
+			} else if ("form".equals(type)) {
+				vLayout.addComponent(new FieldGroupExample(context));
 			} else if ("guava".equals(type)) {
 				new GuavaEventBusExampleApp();
 			} else if ("popup".equals(type)) {

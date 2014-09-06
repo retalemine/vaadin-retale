@@ -6,6 +6,7 @@ import in.retalemine.view.constants.BillingConstants;
 import in.retalemine.view.event.BillItemChangeEvent;
 import in.retalemine.view.event.BillItemSelectionEvent;
 import in.retalemine.view.event.CartSelectionEvent;
+import in.retalemine.view.event.ResetBillingEvent;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -204,6 +205,13 @@ public class BillingTable extends Table {
 			unselect(event.getBillItemVO());
 		}
 	}
+	
+	@Subscribe
+	public void listenResetBillingEvent(final ResetBillingEvent event) {
+		logger.info("Event - {} : handler - {}", event.getClass()
+				.getSimpleName(), getClass().getSimpleName());
+		container.removeAllItems();
+	}
 
 	class BillingItemSetChangeListener implements
 			Container.ItemSetChangeListener {
@@ -222,8 +230,7 @@ public class BillingTable extends Table {
 				// update billing footer, enable billMeBT & resetBT
 				logger.info("{} posts BillItemChangeEvent", getClass()
 						.getSimpleName());
-				eventBus.post(new BillItemChangeEvent(BillingComputationUtil
-						.computeSubAmount(container.getItemIds())));
+				eventBus.post(new BillItemChangeEvent(container.getItemIds()));
 			} else {
 				logger.info("{} posts BillItemChangeEvent", getClass()
 						.getSimpleName());

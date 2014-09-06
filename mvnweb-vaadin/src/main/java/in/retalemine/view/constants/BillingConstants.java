@@ -41,22 +41,24 @@ public interface BillingConstants {
 	public static final String PID_TAX_TYPE = "taxType";
 	public static final String PID_TAX_PERCENT = "taxPercent";
 
-	public static final String EMPTY = "";
-	public static final String ZERO = "0.0";
-	public static final String COLON = ":";
-
-	public static final String BILL_NO = "Bill No. ";
-	public static final String DATE = "Date :";
-	public static final String DATE_FORMAT = "dd-MM-yyyy";
-
-	public static final String PROMPT_QTY_SUFFIX = "Unit";
-	public static final String HOME_DELIVERY = "Home delivery";
-	public static final String BILL_ME = "Bill Me";
-	public static final String PAY_CASH = "Cash";
-	public static final String PAY_CHEQUE = "Cheque";
-	public static final String PAY_DELAYED = "Delayed";
 	public static final String CUSTOMER_NAME = "Customer Name";
 	public static final String CUSTOMER_CONTACT_NO = "Contact No.";
 	public static final String CUSTOMER_ADDRESS = "Address";
-	public static final Integer CUSTOMER_ADDRESS_ROWS = 2;
+	public static final Integer ADDRESS_ROWS_COUNT = 2;
+
+	public static final String PAY_MODE = "Payment Mode";
+	public static final String PAY_CASH = "Cash";
+	public static final String PAY_CHEQUE = "Cheque";
+	public static final String PAY_DELAYED = "Delayed";
+	public static final String HOME_DELIVERY = "Home delivery";
+
+	public static final String PRINT = "Print";
+	public static final String DRAFT = "Draft";
+	public static final String RESET = "Reset";
+
+	public static final String CASH_PAYMENT = "Cash Payment";
+	public static final String BILLABLE_AMT = "Billable Amount";
+	public static final String RECEIVED_AMT = "Received Amount";
+	public static final String PAYBACK_AMT = "Payback Amount";
+
 }
