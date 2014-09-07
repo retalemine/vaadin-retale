@@ -3,6 +3,7 @@ package in.retalemine.util;
 import in.retalemine.view.VO.BillItemVO;
 import in.retalemine.view.VO.TaxVO;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SimpleTimeZone;
 
 import javax.measure.Measure;
 import javax.measure.converter.ConversionException;
@@ -27,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanContainer;
+import com.vaadin.server.Page;
+import com.vaadin.server.WebBrowser;
 
 public class BillingComputationUtil {
 
@@ -198,5 +202,19 @@ public class BillingComputationUtil {
 			taxPercent += taxVO.getTaxPercent();
 		}
 		return subTotal.times((100 + taxPercent) / 100);
+	}
+
+	public static String getClientDateString(DateFormat dateTimeFormat) {
+		// TODO Does synchronization needed?
+		// SHORT,MEDIUM,LONG,FULL
+		// 7/9/14 12:37 PM
+		// 7 Sep, 2014 12:37:23 PM
+		// 7 September, 2014 12:37:23 PM GMT+05:30
+		// Sunday, 7 September, 2014 12:37:23 PM GMT+05:30
+		WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
+		SimpleTimeZone clientTimeZone = new SimpleTimeZone(
+				webBrowser.getTimezoneOffset(), "client timezone");
+		dateTimeFormat.setTimeZone(clientTimeZone);
+		return dateTimeFormat.format(webBrowser.getCurrentDate());
 	}
 }

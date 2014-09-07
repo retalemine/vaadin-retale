@@ -13,9 +13,7 @@ import in.retalemine.view.event.PaymentModeSelectionEvent;
 import in.retalemine.view.event.ResetBillingEvent;
 import in.retalemine.view.event.TaxSelectionEvent;
 
-import java.text.DateFormat;
 import java.util.Date;
-import java.util.SimpleTimeZone;
 
 import org.jscience.economics.money.Money;
 import org.jscience.physics.amount.Amount;
@@ -32,16 +30,12 @@ import com.vaadin.event.Action.Handler;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.server.Page;
-import com.vaadin.server.WebBrowser;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
@@ -263,9 +257,10 @@ public class BillProcessing extends HorizontalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				billVO.setBillDate(new Date());
+				Date todaysDate = new Date();
+				billVO.setBillDate(todaysDate);
 				billVO.setIsPaid(true);
-				billVO.setPaidDate(new Date());
+				billVO.setPaidDate(todaysDate);
 				// TODO save the bill and print it
 				// TODO keep the modal with progress bar depicting save and
 				// print
