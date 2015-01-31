@@ -1,5 +1,7 @@
 package in.retalemine.view.tryout.print;
 
+import in.retalemine.view.tryout.print.UI.PrintNewUI;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -45,6 +47,8 @@ public class PrintingExample extends CustomComponent {
 			printThisPage();
 		else if ("open".equals(context))
 			printOpenedPage();
+		else if ("opennew".equals(context))
+			printOpenedPageNew();
 		else if ("nonblocking".equals(context))
 			printNonblockingPage();
 		else if ("pdfgeneration".equals(context))
@@ -85,6 +89,17 @@ public class PrintingExample extends CustomComponent {
 	void printOpenedPage() {
 		BrowserWindowOpener opener = new BrowserWindowOpener(PrintUI.class);
 		opener.setFeatures("height=200,width=400,resizable");
+
+		Button print = new Button("Click to Print");
+		opener.extend(print);
+
+		setCompositionRoot(print);
+	}
+
+	void printOpenedPageNew() {
+		BrowserWindowOpener opener = new BrowserWindowOpener(PrintNewUI.class);
+		opener.setFeatures("height=200,width=400,resizable");
+		opener.setParameter("bil", "value");
 
 		Button print = new Button("Click to Print");
 		opener.extend(print);
